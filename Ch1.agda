@@ -34,6 +34,10 @@ add : ℕ → ℕ → ℕ
 add zero = c₀
 add (suc n) = cₛ n (add n)
 
+assoc : ∀ (i j k : ℕ) → (add i (add j k)) ≡ (add (add i j) k)
+assoc zero j k = refl (add j k) 
+assoc (suc i) j k = cong suc (assoc i j k) 
+
 -- Recursion principle
 
 recℕ : ∀ (C : Set) → C → (ℕ → C → C) → ℕ → C
@@ -52,7 +56,9 @@ indℕ : ∀ (C : ℕ → Set) → C zero → (∀ (n : ℕ) → C n → C (suc 
 indℕ C c₀ cₛ zero = c₀
 indℕ C c₀ cₛ (suc n) = cₛ n (indℕ C c₀ cₛ n)
 
-assoc : ∀ (i j k : ℕ) → (add i (add j k)) ≡ (add (add i j) k)
-assoc zero j k = refl (add j k) 
-assoc (suc i) j k = cong suc (assoc i j k) 
+assoc' : ∀ (i j k : ℕ) → (add i (add j k)) ≡ (add (add i j) k)
+assoc' = indℕ
+           (λ i → ∀ (j k : ℕ) → (add i (add j k) ≡ add (add i j) k))
+           (λ j k → refl (add j k))
+           (λ i r j k → cong suc (r j k))
 
