@@ -10,6 +10,12 @@ data ℕ : Set where
   zero : ℕ
   suc : ℕ → ℕ
 
+record Prod (A : Set) (B : Set) : Set where
+  constructor _,_
+  field
+    π₁ : A
+    π₂ : B
+
 {-# BUILTIN NATURAL ℕ #-}
 
 -- Propositional Equality
@@ -124,116 +130,166 @@ pred : ℕ → ℕ
 pred zero    = zero
 pred (suc n) = n
 
+{- Uses products to save n - 1 to pass to cₛ -}
 recℕ' : ∀ (C : Set) → C → (ℕ → C → C) → ℕ → C
-recℕ' C c₀ cₛ n = iter C c₀ (cₛ (pred n)) n
-{-
+recℕ' C c₀ cₛ n = Prod.π₂
+                     (iter (Prod ℕ C) (0 , c₀)
+                       (λ p → let n = Prod.π₁ p in
+                               let c = Prod.π₂ p in
+                               (suc n , cₛ n c)) n)
+
+lemma : ∀ (C : Set) → ∀ (c₀ : C) → ∀ (cₛ : ℕ → C → C) → ∀ (n : ℕ) →
+  n ≡ Prod.π₁ (iter (Prod ℕ C) (0 , c₀) (λ p → let n = Prod.π₁ p in
+                                                 let c = Prod.π₂ p in
+                                                 (suc n , cₛ n c)) n)
+lemma C c₀ cₛ = indℕ
+                  (λ n → n ≡ Prod.π₁ (iter (Prod ℕ C) (0 , c₀)
+                                        (λ p → let n = Prod.π₁ p in
+                                                let c = Prod.π₂ p in
+                                                (suc n , cₛ n c)) n))
+                  (refl _)
+                  (λ n cn →
+                    let cₛ' =  (λ p → let n = Prod.π₁ p in
+                                       let c = Prod.π₂ p in
+                                       (suc n , cₛ n c)) in
+                    sym (
+                       Prod.π₁ (iter (Prod ℕ C) (0 , c₀) cₛ' (suc n))
+                         ≡⟨ refl _ ⟩
+                       let p = iter (Prod ℕ C) (0 , c₀) cₛ' n in
+                       let c = Prod.π₂ p in
+                       Prod.π₁ (suc (Prod.π₁ p) , cₛ n c)
+                         ≡⟨ cong (λ x → Prod.π₁ (suc x , cₛ n c)) (sym cn) ⟩
+                       suc n ∎
+                    ))
+
 recℕ'eqrecℕ : ∀ (C : Set) → ∀ (c₀ : C) → ∀ (cₛ : ℕ → C → C) → ∀ (n : ℕ) → (recℕ' C c₀ cₛ n ≡ recℕ C c₀ cₛ n)
 recℕ'eqrecℕ C c₀ cₛ = indℕ
                          (λ n → (recℕ' C c₀ cₛ n ≡ recℕ C c₀ cₛ n))
                          (refl c₀)
                          (λ n cn →
-                            recℕ' C c₀ cₛ (suc n)
-                              ≡⟨ refl _ ⟩
-                            cₛ n (iter C c₀ (cₛ n) n)
-                              ≡⟨ cong (cₛ _) cn ⟩
-                            _
-                              ≡⟨ _ ⟩
-                            _)
+                           let cₛ' = (λ p → let n = Prod.π₁ p in
+                                             let c = Prod.π₂ p in
+                                             (suc n , cₛ n c)) in
+                           recℕ' C c₀ cₛ (suc n)
+                             ≡⟨ refl _ ⟩
+                           let p = iter (Prod ℕ C) (0 , c₀) cₛ' n in
+                           cₛ (Prod.π₁ p) (Prod.π₂ p)
+                             ≡⟨ cong (λ x → cₛ (Prod.π₁ p) x) cn ⟩
+                           cₛ (Prod.π₁ p) (recℕ C c₀ cₛ n)
+                             ≡⟨ cong (λ x → cₛ x (recℕ C c₀ cₛ n)) (sym (lemma C c₀ cₛ n)) ⟩
+                           recℕ C c₀ cₛ (suc n) ∎)
 
--}
+
 -- Exercise 1.8
 _×_ : ℕ → ℕ → ℕ
-x × y = recℕ ℕ 0 (λ _ xpy → add x xpy) y
+(_×_) x = recℕ ℕ 0 (λ _ → add x)
 
 _^_ : ℕ → ℕ → ℕ
-x ^ y = recℕ
+(_^_) x = recℕ
             ℕ
             -- "When you only have a recursor, even case analysis looks
             --  like recursion"
             -- 0 ^ 0 = 0, x ^ 0 = 1
             ((recℕ ℕ 0 (λ _ _ → 1)) x)
-            (λ _ xpy → xpy × x)
-            y
+            (λ _ → (_×_) x)
 
-addRightIdent : ∀ (x : ℕ) → (add x zero ≡ x)
+addRightIdent : ∀ (x : ℕ) → add x zero ≡ x
 addRightIdent = indℕ
-                  (λ x → (add x zero ≡ x))
-                  (refl 0)
-                  (λ _ cx → cong suc cx)
+                  (λ x → add x zero ≡ x)
+                  (refl _)
+                  (λ _ → cong suc)
 
-addLeftIdent : ∀ (x : ℕ) → (add zero x ≡ x)
-addLeftIdent x = refl x
+addLeftIdent : ∀ (x : ℕ) → add zero x ≡ x
+addLeftIdent _ = refl _
 
-multRightIdent : ∀ (x : ℕ) → ((x × 1) ≡ x)
+multRightIdent : ∀ (x : ℕ) → x × 1 ≡ x
 multRightIdent = indℕ
-                   (λ x → ((x × 1) ≡ x))
-                   (refl 0)
-                   (λ _ cx → cong suc cx)
+                   (λ x → x × 1 ≡ x)
+                   (refl _)
+                   (λ _ → cong suc)
 
 multLeftIdent : ∀ (x : ℕ) → 1 × x ≡ x
 multLeftIdent = indℕ
                   (λ x → 1 × x ≡ x)
-                  (refl 0)
-                  (λ x cx →
-                    1 × suc x
-                      ≡⟨ refl _ ⟩
-                    suc (recℕ ℕ 0 (λ _ → suc) x)
-                      ≡⟨ cong suc cx ⟩
-                    suc x ∎)
+                  (refl _)
+                  (λ _ → cong suc)
 
-multLeftAnni : ∀ (x : ℕ) → ((x × 0) ≡ 0)
-multLeftAnni x = refl 0
+multLeftAnni : ∀ (x : ℕ) → x × 0 ≡ 0
+multLeftAnni _ = refl _
 
 multRightAnni : ∀ (x : ℕ) → 0 × x ≡ 0
 multRightAnni = indℕ
                   (λ x → 0 × x ≡ 0)
-                  (refl 0)
-                  (λ x cx →
-                    0 × suc x
-                      ≡⟨ refl _ ⟩
-                    recℕ ℕ 0 (λ _ → add 0) x
-                      ≡⟨ cx ⟩
-                    0 ∎)
+                  (refl _)
+                  (λ x cx → cx)
 
-multRightDistrib : ∀ (i j k : ℕ) → (i × (add j k)) ≡ add (i × j) (i × k)
-multRightDistrib i j k = indℕ
-                          (λ i → (i × (add j k)) ≡ add (i × j) (i × k))
-                          (0 × add j k
-                             ≡⟨ multRightAnni (add j k) ⟩
-                           0
+sucAdd1 : ∀ (i : ℕ) → suc i ≡ add i 1
+sucAdd1 = indℕ
+            (λ i → suc i ≡ add i 1)
+            (refl _)
+            (λ _ → cong suc)
+
+multLeftDistrib : ∀ (i j k : ℕ) → i × (add j k) ≡ add (i × j) (i × k)
+multLeftDistrib i j k = indℕ
+                          (λ j → i × (add j k) ≡ add (i × j) (i × k))
+                          (refl _)
+                          (λ j cj →
+                            i × (add (suc j) k)
+                              ≡⟨ refl _ ⟩
+                            add i (i × (add j k))
+                              ≡⟨ cong (add i) cj ⟩
+                            add i (add (i × j) (i × k))
+                              ≡⟨ refl _ ⟩
+                            add i (add (i × j) (i × k))
+                              ≡⟨ assoc i (i × j) (i × k) ⟩
+                            add (add i (i × j)) (i × k)
+                              ≡⟨ refl _ ⟩
+                            add (i × suc j) (i × k) ∎)
+                          j
+
+multRightDistrib : ∀ (i j k : ℕ) → (add i j) × k ≡ add (i × k) (j × k)
+multRightDistrib i j = indℕ
+                         (λ k → (add i j) × k ≡ add (i × k) (j × k))
+                         (refl _)
+                         (λ k ck →
+                           (add i j) × suc k
                              ≡⟨ refl _ ⟩
-                           add 0 0
-                             ≡⟨ cong (λ ij → add ij 0) (sym (multRightAnni j)) ⟩
-                           add (0 × j) 0
-                             ≡⟨ cong (λ ik → add (0 × j) ik) (sym (multRightAnni k)) ⟩
-                           add (0 × j) (0 × k) ∎)
-                          (λ x cx →
-                            {- IH: i * (j + k) = (i * j) + (i * k) -}
-                            {- WTS: (x + 1) * (j + k) = (i + 1) * j + (i + 1) * k -}
-                            
-                            _)
-                          i
+                           add (add i j) ((add i j) × k)
+                             ≡⟨ cong (add (add i j)) ck ⟩
+                           add (add i j) (add (i × k) (j × k))
+                             ≡⟨ assoc (add i j) (i × k) (j × k) ⟩
+                           add (add (add i j) (i × k)) (j × k)
+                             ≡⟨ cong (λ x → add (add x (i × k)) (j × k)) (comm i j) ⟩
+                           add (add (add j i) (i × k)) (j × k)
+                             ≡⟨ cong (λ x → add x (j × k)) (sym (assoc j i (i × k))) ⟩
+                           add (add j (add i (i × k))) (j × k)
+                             ≡⟨ refl _ ⟩
+                           add (add j (i × suc k)) (j × k)
+                             ≡⟨ sym (assoc j (i × suc k) (j × k)) ⟩
+                           add j (add (i × suc k) (j × k))
+                             ≡⟨ cong (add j) (comm (i × suc k) (j × k)) ⟩
+                           add j (add (j × k) (i × suc k))
+                             ≡⟨ assoc j (j × k) (i × suc k) ⟩
+                           add (add j (j × k)) (i × suc k)
+                             ≡⟨ refl _ ⟩
+                           add (j × suc k) (i × suc k)
+                             ≡⟨ comm (j × suc k) (i × suc k) ⟩
+                           add (i × suc k) (j × suc k) ∎)
 
-
-
-multAssoc : ∀ (i j k : ℕ) → (i × (j × k)) ≡ ((i × j) × k)
-multAssoc i j k = indℕ
-                    (λ i → (i × (j × k)) ≡ ((i × j) × k))
-                    (0 × (j × k)
-                       ≡⟨ multRightAnni (j × k) ⟩
-                     0
-                       ≡⟨ sym (multRightAnni k) ⟩
-                     0 × k
-                       ≡⟨ cong (λ x → x × k) (sym (multRightAnni j)) ⟩
-                     (0 × j) × k ∎)
-                     (λ i ci →
-                       suc i × (j × k)
-                         ≡⟨ refl _ ⟩
-                       recℕ ℕ 0 (λ _ x → suc (add i x)) (j × k)
-                         ≡⟨ _ ⟩
-                       _)
-                     i
-
+multAssoc : ∀ (i j k : ℕ) → i × (j × k) ≡ (i × j) × k
+multAssoc i j = indℕ
+                  (λ k → i × (j × k) ≡ (i × j) × k)
+                  (refl _)
+                  (λ k ck →
+                    i × (j × suc k)
+                      ≡⟨ refl _ ⟩
+                    i × (add j (j × k))
+                      ≡⟨ multLeftDistrib i j (j × k) ⟩
+                    add (i × j) (i × (j × k))
+                      ≡⟨ cong (add (i × j)) ck ⟩
+                    add (i × j) ((i × j) × k)
+                      ≡⟨ refl _ ⟩
+                    (i × j) × suc k ∎)
 
 -- (ℕ, +, 0, ×, 1) is a semiring by: *assoc, *Ident, comm, mult*Distrib, and *Anni
 
