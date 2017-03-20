@@ -126,10 +126,6 @@ iter : ∀(C : Set) → C → (C → C) → ℕ → C
 iter C c₀ cₛ zero    = c₀
 iter C c₀ cₛ (suc n) = cₛ (iter C c₀ cₛ n)
 
-pred : ℕ → ℕ
-pred zero    = zero
-pred (suc n) = n
-
 {- Uses products to save n - 1 to pass to cₛ -}
 recℕ' : ∀ (C : Set) → C → (ℕ → C → C) → ℕ → C
 recℕ' C c₀ cₛ n = Prod.π₂
@@ -159,7 +155,7 @@ lemma C c₀ cₛ = indℕ
                        let c = Prod.π₂ p in
                        Prod.π₁ (suc (Prod.π₁ p) , cₛ n c)
                          ≡⟨ cong (λ x → Prod.π₁ (suc x , cₛ n c)) (sym cn) ⟩
-                       suc n ∎
+                       ((suc n) ∎)
                     ))
 
 recℕ'eqrecℕ : ∀ (C : Set) → ∀ (c₀ : C) → ∀ (cₛ : ℕ → C → C) → ∀ (n : ℕ) → (recℕ' C c₀ cₛ n ≡ recℕ C c₀ cₛ n)
@@ -177,7 +173,7 @@ recℕ'eqrecℕ C c₀ cₛ = indℕ
                              ≡⟨ cong (λ x → cₛ (Prod.π₁ p) x) cn ⟩
                            cₛ (Prod.π₁ p) (recℕ C c₀ cₛ n)
                              ≡⟨ cong (λ x → cₛ x (recℕ C c₀ cₛ n)) (sym (lemma C c₀ cₛ n)) ⟩
-                           recℕ C c₀ cₛ (suc n) ∎)
+                           ((recℕ C c₀ cₛ (suc n)) ∎))
 
 
 -- Exercise 1.8
@@ -244,7 +240,7 @@ multLeftDistrib i j k = indℕ
                               ≡⟨ assoc i (i × j) (i × k) ⟩
                             add (add i (i × j)) (i × k)
                               ≡⟨ refl _ ⟩
-                            add (i × suc j) (i × k) ∎)
+                            ((add (i × suc j) (i × k)) ∎))
                           j
 
 multRightDistrib : ∀ (i j k : ℕ) → (add i j) × k ≡ add (i × k) (j × k)
@@ -274,7 +270,7 @@ multRightDistrib i j = indℕ
                              ≡⟨ refl _ ⟩
                            add (j × suc k) (i × suc k)
                              ≡⟨ comm (j × suc k) (i × suc k) ⟩
-                           add (i × suc k) (j × suc k) ∎)
+                           ((add (i × suc k) (j × suc k)) ∎))
 
 multAssoc : ∀ (i j k : ℕ) → i × (j × k) ≡ (i × j) × k
 multAssoc i j = indℕ
@@ -289,7 +285,7 @@ multAssoc i j = indℕ
                       ≡⟨ cong (add (i × j)) ck ⟩
                     add (i × j) ((i × j) × k)
                       ≡⟨ refl _ ⟩
-                    (i × j) × suc k ∎)
+                    (((i × j) × suc k) ∎))
 
 -- (ℕ, +, 0, ×, 1) is a semiring by: *assoc, *Ident, comm, mult*Distrib, and *Anni
 
