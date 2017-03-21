@@ -300,10 +300,40 @@ fmax : ∀ (n : ℕ) → Fin (suc n)
 fmax zero    = fzero 0
 fmax (suc n) = fsuc (suc n) (fmax n)
 
--- Excerise 1.10
+-- Exercise 1.10
 -- This one took a while...the trick is you need more recursion!
 ack : ℕ → ℕ → ℕ
 ack = recℕ
         (ℕ → ℕ)
         suc
         (λ _ am → recℕ ℕ (am 1) (λ _ → am))
+
+-- Exercise 1.11
+data ⊥ : Set where
+
+infix 3 ¬_
+
+¬_ : ∀ {ℓ} → Set ℓ → Set ℓ
+¬ P = P → ⊥
+
+tripNeg : {A : Set} → ¬ (¬ (¬ A)) → ¬ A
+tripNeg not3A a = not3A (λ notA → notA a)
+
+-- Exercise 1.12
+data Coprod (A : Set) (B : Set) : Set where
+  inl : A → Coprod A B
+  inr : B → Coprod A B
+
+implies : {A B : Set} → A → (B → A)
+implies a b = a
+
+dblNeg : {A : Set} → A → (¬ (¬ A))
+dblNeg a notA = notA a
+
+deMorgans : {A B : Set} → Coprod (¬ A) (¬ B) → ¬ (Prod A B)
+deMorgans (inl notA) (a , _) = notA a
+deMorgans (inr notB) (_ , b) = notB b
+
+-- Exercise 1.13
+notLEM : {P : Set} → ¬ (¬ (Coprod P (¬ P)))
+notLEM notCo = notCo (inr (λ p → notCo (inl p)))
