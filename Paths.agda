@@ -29,13 +29,16 @@ open Universe public
 module Functions {ℓ₁ ℓ₂ ℓ₃} where
 
   infixr 80 _∘_
-  _∘_ : {X : Type ℓ₁} → {P : X → Type ℓ₂}
-        → {Q : {x : X} → P x → Type ℓ₃}
-        → {!!} → {!!} → {!!}
-  g ∘ f = {!!}
-
-  id : {X : Type ℓ₁} → {!!} → {!!}
-  id = {!!}
+  _∘_ : {X : Type ℓ₁}
+     → {P : X → Type ℓ₂}
+     → {Q : {x : X} → P x → Type ℓ₃}
+     → ({x : X} → (px : P x) → Q px)
+     → (f : (x : X) → P x)
+     → (x : X) → Q (f x)
+  (g ∘ f) x = g (f x)
+  
+  id : {X : Type ℓ₁} → X → X
+  id x = x
 
 open Functions
 
@@ -53,7 +56,7 @@ module DependentSum {ℓ₁ ℓ₂ : Level} where
 
   infixr 80 _×_
   _×_ : Type ℓ₁ → Type ℓ₂ → Type (ℓ₁ ⊔ ℓ₂)
-  X × Y = {!!}
+  X × Y = Σ X (λ _ → Y)
 
 open DependentSum
 
@@ -63,15 +66,15 @@ open DependentSum
 module InductionOnSigma {ℓ₁ ℓ₂ ℓ₃} {X : Type ℓ₁} {P : X → Type ℓ₂} where
 
   -- recΣ
-  uncurry : {Y : Type ℓ₃} → {!!} → (Σ X P → Y)
-  uncurry f (x , ux) = {!!}
+  uncurry : {Y : Type ℓ₃} → ((x : X) → P x → Y) → (Σ X P → Y)
+  uncurry f (x , ux) = f x ux
 
-  indΣ : (Q : Σ X P → Type ℓ₃) → {!!}
+  indΣ : (Q : Σ X P → Type ℓ₃) → (((x : X) → (ux : P x) → Q (x , ux)))
          → (w : Σ X P) → Q w
-  indΣ Q f (x , ux) = {!!}
+  indΣ Q f (x , ux) = f x ux
 
-  curry : {!!}
-  curry = {!!}
+  curry : {Y : Type ℓ₃} → (Σ X P → Y) → (x : X) → P x → Y
+  curry f x ux = f (x , ux)
 
 open InductionOnSigma
 
@@ -118,7 +121,7 @@ module _ {ℓ} {X : Type ℓ} where
 
   -- pattern-matching definition here
   ! : {x y : X} → x == y → y == x
-  ! = {!!}
+  ! (refl x) = refl x
   
 
   infixr 80 _◾_
@@ -127,7 +130,7 @@ module _ {ℓ} {X : Type ℓ} where
     _◾_ = {!!}
 
   _◾_ : {x y : X} → x == y → {z : X} → y == z → x == z
-  _◾_ = {!!}
+  _◾_ (refl x) (refl .x) = refl x
 
 
 module _ {ℓ} where
@@ -147,7 +150,7 @@ module _ {ℓ₁ ℓ₂} {X : Type ℓ₁} {Y : Type ℓ₂} where
     ap = {!!}
 
   ap : (f : X → Y) → {x y : X} → x == y → f x == f y
-  ap = {!!}
+  ap f (refl x) = refl (f x)
 
 
 module _ {ℓ} {X : Type ℓ} where
@@ -160,7 +163,7 @@ module _ {ℓ} {X : Type ℓ} where
     ◾unitr = {!!}
 
   ◾unitr : {x y : X} → (p : x == y) → p ◾ refl y == p
-  ◾unitr = {!!}
+  ◾unitr  = {!!}
 
   module PathCompositionLeftUnit where
     ◾unitl : {x y : X} → (p : x == y) → {!!}
