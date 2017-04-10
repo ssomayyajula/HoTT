@@ -108,6 +108,7 @@ module PathInduction {ℓ₁ ℓ₂} {X : Type ℓ₁} where
           → {x : X} → (p : x == y) → P p
   ind=r P r (refl x) = r
 
+open PathInduction
 
 -- Exercise. Define all of the following twice. The first time using
 -- ind=, ind=l or ind=r. The second time using pattern matching.
@@ -117,7 +118,7 @@ module _ {ℓ} {X : Type ℓ} where
   module Inverse where
     -- ind= definition here
     ! : {x y : X} → x == y → y == x
-    ! = {!!}
+    ! {x} = ind=l (λ {y} _ → y == x) (refl x)
 
   -- pattern-matching definition here
   ! : {x y : X} → x == y → y == x
@@ -127,7 +128,7 @@ module _ {ℓ} {X : Type ℓ} where
   infixr 80 _◾_
   module PathComposition where
     _◾_ : {x y : X} → x == y → {z : X} → y == z → x == z
-    _◾_ = {!!}
+    _◾_ {x} = ind=l (λ {y} _ → ∀ {z} → y == z → x == z) (λ p → p)
 
   _◾_ : {x y : X} → x == y → {z : X} → y == z → x == z
   _◾_ (refl x) (refl .x) = refl x
@@ -137,17 +138,17 @@ module _ {ℓ} where
 
   module Coerce where
     coe : {X Y : Type ℓ} → X == Y → X → Y
-    coe = {!!}
+    coe {X} = ind=l (λ {Y} _ → X → Y) (λ y → y)
 
   coe : {X Y : Type ℓ} → X == Y → X → Y
-  coe = {!!}
+  coe (refl x) y = y
 
 
 module _ {ℓ₁ ℓ₂} {X : Type ℓ₁} {Y : Type ℓ₂} where
 
   module Apply where
     ap : (f : X → Y) → {x y : X} → x == y → f x == f y
-    ap = {!!}
+    ap f {x} = ind=l (λ {y} _ → f x == f y) (refl (f x))
 
   ap : (f : X → Y) → {x y : X} → x == y → f x == f y
   ap f (refl x) = refl (f x)
@@ -160,50 +161,51 @@ module _ {ℓ} {X : Type ℓ} where
 
   module PathCompositionRightUnit where
     ◾unitr : {x y : X} → (p : x == y) → p ◾ refl y == p
-    ◾unitr = {!!}
+    ◾unitr {x} {y} = ind=r (λ p → p ◾ refl y == p) (refl (refl y))
 
   ◾unitr : {x y : X} → (p : x == y) → p ◾ refl y == p
-  ◾unitr  = {!!}
+  ◾unitr (refl x) = refl (refl x)
 
   module PathCompositionLeftUnit where
-    ◾unitl : {x y : X} → (p : x == y) → {!!}
-    ◾unitl = {!!}
+    ◾unitl : {x y : X} → (p : x == y) → refl x ◾ p == p
+    ◾unitl {x} = ind=l (λ p → refl x ◾ p == p) (refl (refl x))
 
-  ◾unitl : {x y : X} → (p : x == y) → {!!}
-  ◾unitl = {!!}
+  ◾unitl : {x y : X} → (p : x == y) → refl x ◾ p == p
+  ◾unitl (refl x) = refl (refl x)
 
   module PathCompositionLeftInverse where
     ◾invl : {x y : X} → (p : x == y) → ! p ◾ p == refl y
-    ◾invl = {!!}
+    ◾invl {_} {y} = ind=r (λ p → ! p ◾ p == refl y) (refl (refl y))
 
   ◾invl : {x y : X} → (p : x == y) → ! p ◾ p == refl y
-  ◾invl = {!!}
+  ◾invl (refl y) = refl (refl y)
 
   module PathCompositionRightInverse where
-    ◾invr : {x y : X} → (p : x == y) → {!!}
-    ◾invr = {!!}
+    ◾invr : {x y : X} → (p : x == y) → p ◾ ! p == refl x
+    ◾invr {x} {_} = ind=l (λ p → p ◾ ! p == refl x) (refl (refl x))
 
-  ◾invr : {x y : X} → (p : x == y) → {!!}
-  ◾invr = {!!}
+  ◾invr : {x y : X} → (p : x == y) → p ◾ ! p == refl x
+  ◾invr (refl x) = refl (refl x)
 
   module InverseInverseIsId where
     !! : {x y : X} → (p : x == y) → ! (! p) == p
-    !! = {!!}
+    !! {x} {_} = ind=l (λ p → ! (! p) == p) (refl (refl x))
 
   !! : {x y : X} → (p : x == y) → ! (! p) == p
-  !! = {!!}
+  !! (refl x) = refl (refl x)
 
   module InverseCommutesWithDoubleInverse where
     !!! : {x y : X} → (p : x == y) → ap ! (!! p) == !! (! p)
-    !!! = {!!}
+    !!! {x} {_} = ind=l (λ p → ap ! (!! p) == !! (! p)) (refl (refl (refl x)))
 
   !!! : {x y : X} → (p : x == y) → ap ! (!! p) == !! (! p)
-  !!! = {!!}
+  !!! (refl x) = refl (refl (refl x))
 
   module InverseAntiDistOverPathComp where
     !◾ : {x y z : X} → (p : x == y) → (q : y == z) → ! (p ◾ q) == ! q ◾ ! p
-    !◾ = {!!}
+    !◾ {x} {_} {_} = ind=l (λ p → ∀ q → ! (p ◾ q) == ! q ◾ ! p)
+                       (ind=l (λ q → ! (refl x ◾ q) == ! q ◾ ! (refl x)) (refl (refl x)))
 
   !◾ : {x y z : X} → (p : x == y) → (q : y == z) → ! (p ◾ q) == ! q ◾ ! p
-  !◾ = {!!}
+  !◾ (refl x) (refl .x) = refl (refl x)
 
