@@ -209,3 +209,92 @@ module _ {ℓ} {X : Type ℓ} where
   !◾ : {x y z : X} → (p : x == y) → (q : y == z) → ! (p ◾ q) == ! q ◾ ! p
   !◾ (refl x) (refl .x) = refl (refl x)
 
+module _ {ℓ₁ ℓ₂} {X : Type ℓ₁} where
+  {-
+      ind= : (P : {x y : X} → (p : x == y) → Type ℓ₂)
+         → ((x : X) → P (refl x))
+         → {x y : X} → (p : x == y) → P p
+  -}
+
+  ind=' : (P : {x y : X} → x == y → Type ℓ₂)
+             → ((x : X) → P (refl x))
+             → {x y : X} → (p : x == y) → P p
+  ind=' P r {x} {y} = ind=r P (r y)
+
+  {-ind=r' : {y : X} → (P : {x : X} → (p : x == y) → Type ℓ₂)
+         → P (refl y)
+         → {x : X} → (p : x == y) → P p
+  ind=r' P r =
+    ind=' (λ {x} {y} p → ∀ (P' : (z : X) → x == z → Type ℓ₂) → P' x (refl x) → P' y p)
+         ({!!}) {!!} {!!}-}
+
+data ℕ : Set where
+    zero : ℕ
+    suc : ℕ → ℕ
+
+{-# BUILTIN NATURAL ℕ #-}
+
+{- The type of pointed types in the ℓth universe -}
+Pointed : ∀ ℓ → Type (lsuc ℓ)
+Pointed ℓ = Σ (Type ℓ) (λ A → A)
+
+{- n-fold iterated loop space -} 
+Ω : ∀ {ℓ} → ℕ → Pointed ℓ → Pointed ℓ
+Ω 0       (A , a) = (A , a)
+Ω (suc n) (A , a) = Ω n ((a == a) , refl a)
+
+ΩS : ∀ {ℓ} → ℕ → Pointed ℓ → Type ℓ
+ΩS n X = p₁ (Ω n X)
+
+infix  2  _∎      -- equational reasoning
+infixr 2  _==⟨_⟩_  -- equational reasoning
+
+_==⟨_⟩_ : ∀ {ℓ} → {A : Type ℓ} (x : A) {y z : A} → x == y → y == z → x == z
+_ ==⟨ p ⟩ q = p ◾ q 
+
+_∎ : ∀ {ℓ} → {A : Type ℓ} (x : A) → x == x
+_∎ x = refl x
+
+module EckmannHilton {ℓ : Level} where
+  {- Just definitions from the book... -}
+  module Whiskering {X : Type ℓ} {a b c : X} where
+    module RightWhisker {p q : a == b} where
+      _◾ᵣ_ : (α : p == q) → (r : b == c) → p ◾ r == q ◾ r
+      α ◾ᵣ (refl _) = (◾unitr p) ◾ α ◾ ! (◾unitr q)
+    module LeftWhisker {r s : b == c} where
+      _◾ₗ_ : (q : a == b) (β : r == s) → q ◾ r == q ◾ s
+      (refl _) ◾ₗ β = (◾unitl r) ◾ β ◾ ! (◾unitl s)
+  
+  open Whiskering.LeftWhisker
+  open Whiskering.RightWhisker
+
+  module HorizontalComposition {X : Type ℓ} {a b c : X} {p q : a == b} {r s : b == c} where
+    infixr 80 _★_
+    _★_ : (α : p == q) → (β : r == s) → p ◾ r == q ◾ s
+    α ★ β = (α ◾ᵣ r) ◾ (q ◾ₗ β)
+
+    infixr 80 _★'_
+    _★'_ : (α : p == q) → (β : r == s) → p ◾ r == q ◾ s
+    α ★' β = (p ◾ₗ β) ◾ (α ◾ᵣ s)
+
+  open HorizontalComposition
+
+  module HorizontalLemmas {X : Pointed ℓ} where
+    ★==◾ : (α β : ΩS 2 X) → α ★ β == α ◾ β
+    ★==◾ α β = {!!}
+
+    ★'==◾ : (α β : ΩS 2 X) → α ★' β == β ◾ α
+    ★'==◾ α β = {!!}
+
+    {- Reduce everything to reflexivity -}
+    ★==★' : (α β : ΩS 2 X) → α ★ β == α ★' β
+    ★==★' α β = {!!}
+ 
+    eckmann-hilton : (α β : ΩS 2 X) → α ◾ β == β ◾ α
+    eckmann-hilton α β = α ◾ β
+                      ==⟨ ! (★==◾ α β) ⟩
+                         α ★ β
+                      ==⟨ ★==★' α β ⟩
+                         α ★' β
+                      ==⟨ ★'==◾ α β ⟩
+                         (β ◾ α ∎)
