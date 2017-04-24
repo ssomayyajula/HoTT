@@ -209,28 +209,21 @@ module _ {ℓ} {X : Type ℓ} where
   !◾ : {x y z : X} → (p : x == y) → (q : y == z) → ! (p ◾ q) == ! q ◾ ! p
   !◾ (refl x) (refl .x) = refl (refl x)
 
-module _ {ℓ₁ ℓ₂} {X : Type ℓ₁} where
-  {-
-      ind= : (P : {x y : X} → (p : x == y) → Type ℓ₂)
-         → ((x : X) → P (refl x))
-         → {x y : X} → (p : x == y) → P p
-  -}
-
-  ind=' : (P : {x y : X} → x == y → Type ℓ₂)
+module Ind=' {ℓ} {X : Type ℓ} where
+  ind=' : (P : {x y : X} → x == y → Type ℓ)
              → ((x : X) → P (refl x))
              → {x y : X} → (p : x == y) → P p
-  ind=' P r {x} {y} = ind=r P (r y)
+  ind=' P r {_} {y} = ind=r P (r y)
 
-  {-ind=r' : {y : X} → (P : {x : X} → (p : x == y) → Type ℓ₂)
-         → P (refl y)
-         → {x : X} → (p : x == y) → P p
-  ind=r' P r =
-    ind=' (λ {x} {y} p → ∀ (P' : (z : X) → x == z → Type ℓ₂) → P' x (refl x) → P' y p)
-         ({!!}) {!!} {!!}-}
+module Ind=r' {ℓ} {X : Type ℓ} where
+  ind=r' : {y : X} → (P : (x : X) → (p : y == x) → Type ℓ)
+         → P y (refl y)
+         → {x : X} → (p : y == x) → P x p
+  ind=r' P r p = ind= (λ {x} {y} p → ∀ (P : (z : X) → x == z → Type ℓ) → P x (refl x) → P y p) (λ _ _ d → d) p P r
 
 data ℕ : Set where
-    zero : ℕ
-    suc : ℕ → ℕ
+  zero : ℕ
+  suc : ℕ → ℕ
 
 {-# BUILTIN NATURAL ℕ #-}
 
@@ -260,14 +253,14 @@ module EckmannHilton {ℓ : Level} where
   module Whiskering {X : Type ℓ} {a b c : X} where
     module RightWhisker {p q : a == b} where
       _◾ᵣ_ : (α : p == q) → (r : b == c) → p ◾ r == q ◾ r
-      α ◾ᵣ (refl _) = (◾unitr p) ◾ α ◾ ! (◾unitr q)
+      α ◾ᵣ refl _ = ◾unitr p ◾ α ◾ ! (◾unitr q)
     module LeftWhisker {r s : b == c} where
       _◾ₗ_ : (q : a == b) (β : r == s) → q ◾ r == q ◾ s
-      (refl _) ◾ₗ β = (◾unitl r) ◾ β ◾ ! (◾unitl s)
-  
+      refl _ ◾ₗ β = ◾unitl r ◾ β ◾ ! (◾unitl s)
+
   open Whiskering.LeftWhisker
   open Whiskering.RightWhisker
-
+  
   module HorizontalComposition {X : Type ℓ} {a b c : X} {p q : a == b} {r s : b == c} where
     infixr 80 _★_
     _★_ : (α : p == q) → (β : r == s) → p ◾ r == q ◾ s
@@ -279,10 +272,24 @@ module EckmannHilton {ℓ : Level} where
 
   open HorizontalComposition
 
+  module HorizontalLemmas {X : Type ℓ} {a b c : X} {p q : a == b} {r s : b == c} where
+    ★==★' : (α : p == q) → (β : r == s) → α ★ β == α ★' β
+    ★==★' = ind=l (λ α → ∀ β → α ★ β == α ★' β)
+              (ind=l (λ β → refl p ★ β == refl p ★' β)
+                (refl p ★ refl r
+                   ==⟨ refl _ ⟩
+                 (refl p ◾ᵣ r) ◾ (p ◾ₗ refl r)
+                   ==⟨ refl _ ⟩
+                {- LHS: p ◾ refl b == p . p == p . p == p ◾ refl b == p -> p ◾ refl b == p ◾ refl b -}
+                {- RHS: p ◾ r == p ◾ r -}
+                {- Mismatch: refl b : b == b but r : b == c and b != c -}
+                 ((◾unitr p) ◾ (refl p) ◾ (! (◾unitr p))) ◾ (p ◾ₗ refl r)
+                   ==⟨ {!!} ⟩
+                 {!!}))
+{-
   module HorizontalLemmas {X : Pointed ℓ} where
     ★==◾ : (α β : ΩS 2 X) → α ★ β == α ◾ β
     ★==◾ α β = {!!}
-
     ★'==◾ : (α β : ΩS 2 X) → α ★' β == β ◾ α
     ★'==◾ α β = {!!}
 
@@ -298,3 +305,4 @@ module EckmannHilton {ℓ : Level} where
                          α ★' β
                       ==⟨ ★'==◾ α β ⟩
                          (β ◾ α ∎)
+-}
