@@ -221,6 +221,10 @@ module Ind=r' {ℓ} {X : Type ℓ} where
          → {x : X} → (p : y == x) → P x p
   ind=r' P r p = ind= (λ {x} {y} p → ∀ (P : (z : X) → x == z → Type ℓ) → P x (refl x) → P y p) (λ _ _ d → d) p P r
 
+{-module _ {ℓ} {X : Type ℓ} {a b c d : X} where
+  ◾assoc : (p : a == b) (q : b == c) (r : c == d) → p ◾ (q ◾ r) == (p ◾ q) ◾ r
+  ◾assoc (refl a) (refl _) (refl _) = refl (refl a)-}
+
 data ℕ : Set where
   zero : ℕ
   suc : ℕ → ℕ
@@ -271,33 +275,68 @@ module EckmannHilton {ℓ : Level} where
     α ★' β = (p ◾ₗ β) ◾ (α ◾ᵣ s)
 
   open HorizontalComposition
-
-  module HorizontalLemmas {X : Type ℓ} {a b c : X} {p q : a == b} {r s : b == c} where
-    ★==★' : (α : p == q) → (β : r == s) → α ★ β == α ★' β
-    ★==★' = ind=l (λ α → ∀ β → α ★ β == α ★' β)
-              (ind=l (λ β → refl p ★ β == refl p ★' β)
-                (refl p ★ refl r
-                   ==⟨ refl _ ⟩
-                 (refl p ◾ᵣ r) ◾ (p ◾ₗ refl r)
-                   ==⟨ refl _ ⟩
-                {- LHS: p ◾ refl b == p . p == p . p == p ◾ refl b == p -> p ◾ refl b == p ◾ refl b -}
-                {- RHS: p ◾ r == p ◾ r -}
-                {- Mismatch: refl b : b == b but r : b == c and b != c -}
-                 ((◾unitr p) ◾ (refl p) ◾ (! (◾unitr p))) ◾ (p ◾ₗ refl r)
-                   ==⟨ {!!} ⟩
-                 {!!}))
 {-
-  module HorizontalLemmas {X : Pointed ℓ} where
-    ★==◾ : (α β : ΩS 2 X) → α ★ β == α ◾ β
-    ★==◾ α β = {!!}
-    ★'==◾ : (α β : ΩS 2 X) → α ★' β == β ◾ α
-    ★'==◾ α β = {!!}
+  module HorizontalLemmas {X : Type ℓ} where
+    ★==★' : {a b : X} → {p q : a == b} → (α : p == q)
+          → {c : X} → {r s : b == c} → (β : r == s)
+          → α ★ β == α ★' β
+    ★==★' {a} {b} {p} = ind=l P f
+      where P : {q : a == b} → p == q → Type ℓ
+            P α = {c : X} → {r s : b == c} → (β : r == s) → α ★ β == α ★' β
+            f : {c : X} → {r s : b == c} → (β : r == s) → refl p ★ β == refl p ★' β
+            f {c} {r} = ind=l (λ β → refl p ★ β == refl p ★' β)
+                        ((refl p ★ refl r)
+                           ==⟨ refl _ ⟩
+                         ((refl p ◾ᵣ r) ◾ (p ◾ₗ refl r))
+                           ==⟨ refl _ ⟩
+                         ((◾unitr p) ◾ (refl p) ◾ ! (◾unitr p)) ◾ ((p ◾ₗ (refl r)))
+                           ==⟨ _ ⟩
+                         _)-}
+
+  module _ {X : Type ℓ} {a : X} where
+    ★==◾ : (α β : refl a == refl a) → α ★ β == α ◾ β
+    ★==◾ α β = α ★ β
+                  ==⟨ refl _ ⟩
+                (α ◾ᵣ refl a) ◾ (refl a ◾ₗ β)
+                  ==⟨ refl _ ⟩
+                (◾unitr (refl a) ◾ α ◾ ! (◾unitr (refl a))) ◾
+                  (◾unitl (refl a) ◾ β ◾ ! (◾unitl (refl a)))
+                  ==⟨ refl _ ⟩
+                (refl (refl a) ◾ (α ◾ refl (refl a))) ◾
+                  (refl (refl a) ◾ (β ◾ refl (refl a)))
+                  ==⟨ ap (λ x → (_ ◾ x) ◾ _) (◾unitr α) ⟩
+                (refl (refl a) ◾ α) ◾ (refl (refl a) ◾ (β ◾ refl (refl a)))
+                  ==⟨ ap (λ x → x ◾ _) (◾unitl α) ⟩
+                α ◾ (refl (refl a) ◾ β ◾ refl (refl a))
+                  ==⟨ ap (λ x → _ ◾ (_ ◾ x)) (◾unitr β) ⟩
+                α ◾ (refl (refl a) ◾ β)
+                  ==⟨ ap (λ x → _ ◾ x) (◾unitl β) ⟩
+                (α ◾ β ∎)
+    
+    ★'==◾ : (α β : refl a == refl a) → α ★' β == β ◾ α
+    ★'==◾ α β = α ★' β
+                   ==⟨ refl _ ⟩
+                 (refl a ◾ₗ β) ◾ (α ◾ᵣ refl a)
+                   ==⟨ refl _ ⟩
+                 (◾unitl (refl a) ◾ β ◾ ! (◾unitl (refl a))) ◾
+                   (◾unitr (refl a) ◾ α ◾ ! (◾unitr (refl a)))
+                   ==⟨ refl _ ⟩
+                 (refl (refl a) ◾ (β ◾ refl (refl a))) ◾
+                   (refl (refl a) ◾ (α ◾ refl (refl a)))
+                   ==⟨ ap (λ x → (_ ◾ x) ◾ _) (◾unitr β) ⟩
+                 (refl (refl a) ◾ β) ◾ (refl (refl a) ◾ (α ◾ refl (refl a)))
+                   ==⟨ ap (λ x → x ◾ _) (◾unitl β) ⟩
+                 β ◾ (refl (refl a) ◾ (α ◾ refl (refl a)))
+                   ==⟨ ap (λ x → _ ◾ (_ ◾ x)) (◾unitr α) ⟩
+                 β ◾ (refl (refl a) ◾ α)
+                   ==⟨ ap (λ x → _ ◾ x) (◾unitl α) ⟩
+                 (β ◾ α ∎)
 
     {- Reduce everything to reflexivity -}
-    ★==★' : (α β : ΩS 2 X) → α ★ β == α ★' β
+    ★==★' : (α β : refl a == refl a) → α ★ β == α ★' β
     ★==★' α β = {!!}
  
-    eckmann-hilton : (α β : ΩS 2 X) → α ◾ β == β ◾ α
+    eckmann-hilton : (α β : refl a == refl a) → α ◾ β == β ◾ α
     eckmann-hilton α β = α ◾ β
                       ==⟨ ! (★==◾ α β) ⟩
                          α ★ β
@@ -305,4 +344,4 @@ module EckmannHilton {ℓ : Level} where
                          α ★' β
                       ==⟨ ★'==◾ α β ⟩
                          (β ◾ α ∎)
--}
+
