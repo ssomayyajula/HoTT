@@ -275,23 +275,6 @@ module EckmannHilton {ℓ : Level} where
     α ★' β = (p ◾ₗ β) ◾ (α ◾ᵣ s)
 
   open HorizontalComposition
-{-
-  module HorizontalLemmas {X : Type ℓ} where
-    ★==★' : {a b : X} → {p q : a == b} → (α : p == q)
-          → {c : X} → {r s : b == c} → (β : r == s)
-          → α ★ β == α ★' β
-    ★==★' {a} {b} {p} = ind=l P f
-      where P : {q : a == b} → p == q → Type ℓ
-            P α = {c : X} → {r s : b == c} → (β : r == s) → α ★ β == α ★' β
-            f : {c : X} → {r s : b == c} → (β : r == s) → refl p ★ β == refl p ★' β
-            f {c} {r} = ind=l (λ β → refl p ★ β == refl p ★' β)
-                        ((refl p ★ refl r)
-                           ==⟨ refl _ ⟩
-                         ((refl p ◾ᵣ r) ◾ (p ◾ₗ refl r))
-                           ==⟨ refl _ ⟩
-                         ((◾unitr p) ◾ (refl p) ◾ ! (◾unitr p)) ◾ ((p ◾ₗ (refl r)))
-                           ==⟨ _ ⟩
-                         _)-}
 
   module _ {X : Type ℓ} {a : X} where
     ★==◾ : (α β : refl a == refl a) → α ★ β == α ◾ β
@@ -332,9 +315,18 @@ module EckmannHilton {ℓ : Level} where
                    ==⟨ ap (λ x → _ ◾ x) (◾unitl α) ⟩
                  (β ◾ α ∎)
 
-    {- Reduce everything to reflexivity -}
-    ★==★' : (α β : refl a == refl a) → α ★ β == α ★' β
-    ★==★' α β = {!!}
+    {- Refl. Refl? Refl! -}
+    ★==★' : {a b : X} → {p q : a == b} → (α : p == q)
+          → {c : X} → {r s : b == c} → (β : r == s)
+          → α ★ β == α ★' β
+    ★==★' {a} {b} {p} = ind=l P f
+      where P : {q : a == b} → p == q → Type ℓ
+            P α = {c : X} → {r s : b == c} → (β : r == s) → α ★ β == α ★' β
+            f : {c : X} → {r s : b == c} → (β : r == s) → refl p ★ β == refl p ★' β
+            f {c} {r} = ind=l (λ β → refl p ★ β == refl p ★' β)
+                          (ind=l (λ r → refl p ★ refl r == refl p ★' refl r)
+                            (ind=l (λ {b} p → refl p ★ refl (refl b) == refl p ★' refl (refl b))
+                              ((refl (refl (refl a)))) p) r)
  
     eckmann-hilton : (α β : refl a == refl a) → α ◾ β == β ◾ α
     eckmann-hilton α β = α ◾ β
@@ -344,4 +336,3 @@ module EckmannHilton {ℓ : Level} where
                          α ★' β
                       ==⟨ ★'==◾ α β ⟩
                          (β ◾ α ∎)
-
