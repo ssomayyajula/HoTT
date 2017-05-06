@@ -327,7 +327,17 @@ module EckmannHilton {ℓ : Level} where
                           (ind=l (λ r → refl p ★ refl r == refl p ★' refl r)
                             (ind=l (λ {b} p → refl p ★ refl (refl b) == refl p ★' refl (refl b))
                               ((refl (refl (refl a)))) p) r)
- 
+     
+    {-★==★'' : {X : Pointed ℓ} (α β : p₁ (Ω 2 X)) → α ★ β == α ★' β
+    ★==★'' {(A , a)} (refl (refl .a)) (refl (refl .a)) = {!!}
+      {-where P : {q : a == a} → refl a == refl a → Type ℓ
+            P α = {c : X} → {r s : b == c} → (β : r == s) → α ★ β == α ★' β
+            f : {c : X} → {r s : b == c} → (β : r == s) → refl p ★ β == refl p ★' β
+            f {c} {r} = ind=l (λ β → refl p ★ β == refl p ★' β)
+                          (ind=l (λ r → refl p ★ refl r == refl p ★' refl r)
+                            (ind=l (λ {b} p → refl p ★ refl (refl b) == refl p ★' refl (refl b))
+                              ((refl (refl (refl a)))) p) r)-}-}
+    
     eckmann-hilton : (α β : refl a == refl a) → α ◾ β == β ◾ α
     eckmann-hilton α β = α ◾ β
                       ==⟨ ! (★==◾ α β) ⟩
@@ -336,3 +346,44 @@ module EckmannHilton {ℓ : Level} where
                          α ★' β
                       ==⟨ ★'==◾ α β ⟩
                          (β ◾ α ∎)
+ 
+
+{- Homotopy! -}
+module _ {ℓ} {ℓ'} {X : Type ℓ} {P : X → Type ℓ'} where
+  _~_ : (f g : (x : X) → P x) → Type (ℓ ⊔ ℓ')
+  f ~ g = (x : X) → f x == g x
+
+module _ {ℓ} {X : Type ℓ} where
+  id' : X → X
+  id' x = x
+
+module ProductEquiv {ℓ} {X : Type ℓ} {x x' y y' : X} where
+  f : (x == x') × (y == y') → ((x , y) == (x' , y'))
+  f (refl x , refl y) = refl (x , y)
+
+  g : ((x , y) == (x' , y')) → (x == x') × (y == y')
+  g (refl (x , y)) = (refl x , refl y)
+
+  ε : f ∘ g ~ id'
+  ε (refl (x , y)) = refl (refl (x , y))
+
+  η : g ∘ f ~ id'
+  η (refl x , refl y) = refl (refl x , refl y)
+
+data 𝟙 : Type₀ where
+  ★ : 𝟙
+
+module UnitEquiv {x y : 𝟙} where
+  f : x == y → 𝟙
+  f _ = ★
+
+  g : 𝟙 → x == y
+  g _ = g' x y where
+    g' : (x y : 𝟙) → x == y
+    g' ★ ★ = refl ★
+
+  ε : f ∘ g ~ id'
+  ε ★ = refl ★
+
+  η : g ∘ f ~ id'
+  η (refl ★) = refl (refl ★)
