@@ -327,16 +327,6 @@ module EckmannHilton {ℓ : Level} where
                           (ind=l (λ r → refl p ★ refl r == refl p ★' refl r)
                             (ind=l (λ {b} p → refl p ★ refl (refl b) == refl p ★' refl (refl b))
                               ((refl (refl (refl a)))) p) r)
-     
-    {-★==★'' : {X : Pointed ℓ} (α β : p₁ (Ω 2 X)) → α ★ β == α ★' β
-    ★==★'' {(A , a)} (refl (refl .a)) (refl (refl .a)) = {!!}
-      {-where P : {q : a == a} → refl a == refl a → Type ℓ
-            P α = {c : X} → {r s : b == c} → (β : r == s) → α ★ β == α ★' β
-            f : {c : X} → {r s : b == c} → (β : r == s) → refl p ★ β == refl p ★' β
-            f {c} {r} = ind=l (λ β → refl p ★ β == refl p ★' β)
-                          (ind=l (λ r → refl p ★ refl r == refl p ★' refl r)
-                            (ind=l (λ {b} p → refl p ★ refl (refl b) == refl p ★' refl (refl b))
-                              ((refl (refl (refl a)))) p) r)-}-}
     
     eckmann-hilton : (α β : refl a == refl a) → α ◾ β == β ◾ α
     eckmann-hilton α β = α ◾ β
@@ -347,7 +337,6 @@ module EckmannHilton {ℓ : Level} where
                       ==⟨ ★'==◾ α β ⟩
                          (β ◾ α ∎)
  
-
 {- Homotopy! -}
 module _ {ℓ} {ℓ'} {X : Type ℓ} {P : X → Type ℓ'} where
   _~_ : (f g : (x : X) → P x) → Type (ℓ ⊔ ℓ')
@@ -387,3 +376,36 @@ module UnitEquiv {x y : 𝟙} where
 
   η : g ∘ f ~ id'
   η (refl ★) = refl (refl ★)
+
+{- Lemma 2.3.1: Transport -}
+module Transport {ℓ} {ℓ'} {A : Type ℓ} {x y : A} {P : A → Type ℓ'} where
+  transport : x == y → P x → P y
+  transport (refl x) px = px
+
+open Transport
+
+module DependentSumEquiv {ℓ} {ℓ'} {A : Type ℓ} {P : A → Type ℓ'} {w w' : Σ A P} where
+  f : w == w' → Σ (p₁ w == p₁ w') (λ p → transport p (p₂ w) == p₂ w')
+  f (refl w) = refl (p₁ w) , refl (p₂ w)
+
+  g : Σ (p₁ w == p₁ w') (λ p → transport p (p₂ w) == p₂ w') → w == w'
+  g (refl p₁_w , refl p₂_w) = refl w
+
+  ε : f ∘ g ~ id'
+  ε (refl p₁_w , refl p₂_w) = refl (refl (p₁ w) , refl (p₂ w))
+
+  η : g ∘ f ~ id'
+  η (refl w) = refl (refl w)
+
+module DependentSumUnitEquiv {ℓ} {X : Type ℓ} {x y : X} where
+  f : Σ X (λ y → x == y) → 𝟙
+  f _ = ★
+  
+  g : 𝟙 → Σ X (λ y → x == y)
+  g _ = x , (refl x)
+
+  ε : f ∘ g ~ id'
+  ε ★ = refl ★
+
+  η : g ∘ f ~ id'
+  η (x , refl .x) = refl (x , refl x)
