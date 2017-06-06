@@ -396,8 +396,18 @@ module DependentSumEquiv {ℓ} {ℓ'} {A : Type ℓ} {P : A → Type ℓ'} {w w'
 
   η : g ∘ f ~ id'
   η (refl w) = refl (refl w)
+{-
+transport' : ∀ ℓ ℓ' → (A : Type ℓ) → (x y : A) → (P : A → Type ℓ') → x == y → P x → P y
+transport' _ _ _ _ _ _ (refl x) px = px
 
-module DependentSumUnitEquiv {ℓ} {X : Type ℓ} {x y : X} where
+module _ {ℓ} {ℓ'} {A : Type ℓ} {P : A → Type ℓ'} {Q : Σ A P → Type ℓ'} {x y : A} {p : x == y} {uz : Σ (P x) (λ u → Q (x , u))} where
+
+  strans : let (u , z) = uz in
+           let tpu     = transport' ℓ ℓ' A x y P p u in
+           let tpuz    = transport' ℓ ℓ' A x y (Q) p uz in {!!}
+  strans = {!!}
+-}
+module DependentSumUnitEquiv {ℓ} {X : Type ℓ} {x : X} where
   f : Σ X (λ y → x == y) → 𝟙
   f _ = ★
   
@@ -409,3 +419,24 @@ module DependentSumUnitEquiv {ℓ} {X : Type ℓ} {x y : X} where
 
   η : g ∘ f ~ id'
   η (x , refl .x) = refl (x , refl x)
+
+  η' : g ∘ f ~ id'
+  η' (x , p) = dpair= {!!}
+    where dpair= = DependentSumEquiv.g
+  
+  uniq : (xp : Σ X (λ y → x == y)) → xp == (x , refl x)
+  uniq (x , refl .x) = refl (x , refl x)
+
+module BoundIndicesEquivX {ℓ} {X : Type ℓ} where
+  f : Σ X (λ x → Σ X (λ y → x == y)) → X
+  f (x , _) = x
+
+  g : X → Σ X (λ x → Σ X (λ y → x == y))
+  g x = (x , (x , refl x))
+
+  ε : f ∘ g ~ id'
+  ε = refl
+
+  η : g ∘ f ~ id'
+  η (x , (.x , refl .x)) = refl (x , (x , refl x))
+
