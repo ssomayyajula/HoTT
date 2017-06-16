@@ -204,6 +204,3 @@ ex : 𝟚 → 𝟚
 ex = let equiv = ua one-plus-one in
   coe (! equiv) (coe equiv (inl ★))
 -}
-
-data ∥_∥ {ℓ} (X : Type ℓ) : Type ℓ where
-  |_| : X → ∥ X ∥
