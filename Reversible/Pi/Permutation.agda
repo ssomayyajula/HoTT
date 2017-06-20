@@ -1,44 +1,31 @@
 module Reversible.Pi.Permutation where
 
-open import UnivalentTypeTheory
+open import Type
+open import Zero
+open import Paths
+open import DependentSum
+open import Functions
+open import FunctionExtensionality
+open import Equivalences
+open import Data.Nat
+
+open import Reversible.Utils
 open import Reversible.Pi.AFin
 
-infix  2  _∎      -- equational reasoning
-infixr 2  _==⟨_⟩_  -- equational reasoning
-
-_==⟨_⟩_ : ∀ {ℓ} → {A : Type ℓ} (x : A) {y z : A} → x == y → y == z → x == z
-_ ==⟨ p ⟩ q = p ◾ q 
-
-_∎ : ∀ {ℓ} → {A : Type ℓ} (x : A) → x == x
-_∎ x = refl x
+data Perm : ℕ → Type₀ where
+  right-shift : {n : ℕ} → Perm n
+  swap12 : {n : ℕ} → Perm (suc (suc n))
+  _□_ : {n : ℕ} → Perm n → Perm n → Perm n
 
 {-
-mutual
-  data Unique {ℓ} : Set ℓ → Set ℓ where
-    nil   : {A : Set ℓ} → Unique A
-    _:::_ : {A : Set ℓ} (x : A) (l : Unique A) {_ : ¬ (x ∈ l)} → Unique A
-
-  _∈_ : ∀ {ℓ} {A : Set ℓ} → A → Unique A → Set
-  y ∈ nil               = 𝟘
-  y ∈ (x ::: _) with 0
-  _ ∈ (_ ::: _)    | 0  = 𝟙
-  y ∈ (_ ::: xs)   | _ = y ∈ xs
+swap12-f : {n : ℕ} → AFin (suc (suc n)) → AFin n
+swap12-f = {!!}
 -}
 
-data Perm (n : ℕ) : Type₀ where
-  swap12 right-shift : Perm n
-  _□_ : Perm n → Perm n → Perm n
-
-module _ {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄} {A : Type ℓ₁} {B : Type ℓ₂} {C : Type ℓ₃} {D : Type ℓ₄} where
-  ∘-assoc : (f : C → D) (g : B → C) (h : A → B) → f ∘ (g ∘ h) == (f ∘ g) ∘ h
-  ∘-assoc f g h = funext (λ x → refl (f (g (h x))))
-
-  ∘-unit : (f : A → B) → id ∘ f == f
-  ∘-unit f = funext (λ x → refl (f x))
-  
 perm-to-equiv : {n : ℕ} → Perm n → AFin n ≃ AFin n
+perm-to-equiv {0}     right-shift = ide 𝟘
+perm-to-equiv {suc n} right-shift = {!!}
 perm-to-equiv swap12      = {!!}
-perm-to-equiv right-shift = {!!}
 perm-to-equiv (p □ q) =
   let (f1 , e1)      = perm-to-equiv p in
   let (f2 , e2)      = perm-to-equiv q in
@@ -47,15 +34,26 @@ perm-to-equiv (p □ q) =
   f1 ∘ f2 , qinv-is-equiv (g2 ∘ g1 , (λ x →
     ((g2 ∘ g1) ∘ (f1 ∘ f2)) x
       ==⟨ ap (λ f → f x) (! (∘-assoc g2 g1 (f1 ∘ f2))) ⟩
-    (g2 ∘ (g1 ∘ (f1 ∘ f2))) x
-      ==⟨ {!!} ⟩
-    (g2 ∘ ((g1 ∘ f1) ∘ f2)) x
-      ==⟨ {!!} ⟩
-    (g2 ∘ (id ∘ f2)) x
-      ==⟨ {!!} ⟩
+    (g2 ∘ g1 ∘ f1 ∘ f2) x
+      ==⟨ ap (λ f → (g2 ∘ f) x) (∘-assoc g1 f1 f2) ⟩
+    (g2 ∘ (g1 ∘ f1) ∘ f2) x
+      ==⟨ ap g2 (η1 (f2 x)) ⟩
+    (g2 ∘ id ∘ f2) x
+      ==⟨ ap (λ f → (g2 ∘ f) x) (∘-unit f2) ⟩
     (g2 ∘ f2) x
       ==⟨ η2 x ⟩
-    (id x ∎)) , {!!})
+    (id x ∎)) , (λ x →
+    ((f1 ∘ f2) ∘ (g2 ∘ g1)) x
+      ==⟨ ap (λ f → f x) (! (∘-assoc f1 f2 (g2 ∘ g1))) ⟩
+    (f1 ∘ f2 ∘ g2 ∘ g1) x
+      ==⟨ ap (λ f → (f1 ∘ f) x) (∘-assoc f2 g2 g1) ⟩
+    (f1 ∘ (f2 ∘ g2) ∘ g1) x
+      ==⟨ ap f1 (ε2 (g1 x)) ⟩
+    (f1 ∘ id ∘ g1) x
+      ==⟨ ap (λ f → (f1 ∘ f) x) (∘-unit g1) ⟩
+    (f1 ∘ g1) x
+      ==⟨ ε1 x ⟩
+    (id x ∎)))
 
 equiv-to-perm : {n : ℕ} → AFin n ≃ AFin n → Perm n
 equiv-to-perm (f , e) =
