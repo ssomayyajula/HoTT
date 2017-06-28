@@ -29,18 +29,26 @@ suc-not-eq-zero ()
 equiv-is-inj : ∀ {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} → (f : A → B) → is-equiv f → (x y : A) → f x == f y → x == y
 equiv-is-inj _ (g , h , _) x y p = ! (h x) ◾ (ap g p) ◾ h y
 
-comp : {n : ℕ} → (i j : Fin n) → (Data.Fin._<_ i j) + (i == j) + ¬ (i ≤ j)
-comp zero zero    = i₂ (i₁ (refl zero))
-comp (suc x) zero = i₂ (i₂ (λ ()))
-comp zero (suc x) = i₁ (s≤s z≤n)
-comp (suc x) (suc y) with comp x y
-comp (suc x) (suc y) | i₁     x<y  = i₁ (s≤s x<y)
-comp (suc x) (suc y) | i₂ (i₁ x=y) = i₂ (i₁ (ap suc x=y))
-comp (suc x) (suc y) | i₂ (i₂ x≥y) = i₂ (i₂ (λ { (s≤s x≤y) → x≥y x≤y }))
+{-
+equiv : {m n : ℕ} → Data.Nat._≤_ m n ≃ ¬ (Data.Nat._≤_ n m)
+equiv = {!!} , {!!} where
+  f : {m n : ℕ} → Data.Nat._≤_ m n → ¬ (Data.Nat._≤_ n m)
+  f {0} {n} z≤n ()
+  f = {!!}
+-}
+
+tri : {n : ℕ} → (i j : Fin n) → (Data.Fin._<_ i j) + (i == j) + (Data.Fin._<_ j i)
+tri zero zero    = i₂ (i₁ (refl zero))
+tri (suc x) zero = i₂ (i₂ (s≤s z≤n))
+tri zero (suc x) = i₁ (s≤s z≤n)
+tri (suc x) (suc y) with tri x y
+tri (suc x) (suc y) | i₁     x<y  = i₁ (s≤s x<y)
+tri (suc x) (suc y) | i₂ (i₁ x=y) = i₂ (i₁ (ap suc x=y))
+tri (suc x) (suc y) | i₂ (i₂ y<x) = i₂ (i₂ (s≤s y<x))
 
 squeeze : {m n : ℕ} → (x : Fin n) → toℕ x < m → Fin m
 squeeze {0}     _       ()
-squeeze {suc _} zero    (s≤s z≤n) = zero
+squeeze {suc _} zero    _         = zero
 squeeze {suc _} (suc x) (s≤s x≤n) = suc (squeeze x x≤n)
 
 fpred : {n : ℕ} → Fin (suc (suc n)) → Fin (suc n)
@@ -67,7 +75,9 @@ perm-succ _ ([] , isperm) = (0 ∷ []) , (λ { 0 → λ _ → here; (suc n) → 
 perm-succ m (v , isperm) = {!!}
 
 perm-pred : {n : ℕ} → Perm (suc n) → Perm n
-perm-pred ((x ∷ xs) , isperm) = (map Data.Nat.pred xs , (λ m m<n → {!!}))
+perm-pred {n} ((x ∷ xs) , isperm) = ({!!} , (λ m m<n → {!!})) where
+  eject : Perm (suc n) → Perm n
+  eject = {!!}-- (x :: xs , _) with tri x 
 
 fin-equiv-succ : {n : ℕ} → ℕ → Fin n ≃ Fin n → Fin (suc n) ≃ Fin (suc n)
 fin-equiv-succ m (f , φ) = ({!!} , {!!})
@@ -78,7 +88,7 @@ fin-equiv-pred {suc m} e@(f , (g , _)) =
   eject e , qinv-is-equiv ({!!} , {!!} , {!!}) where
   
   eject : Fin (suc (suc m)) ≃ Fin (suc (suc m)) → Fin (suc m) → Fin (suc m)
-  eject (f , φ) x with comp (f (suc x)) (f zero)
+  eject (f , φ) x with tri (f (suc x)) (f zero)
   ...             | i₁ lt      = squeeze (f (suc x)) (trans lt (demote (fin-bound (f zero))))
   ...             | i₂ (i₁ eq) = rec𝟘 _ (suc-not-eq-zero (equiv-is-inj f φ (suc x) zero eq))
   ...             | _          = fpred (f (suc x))

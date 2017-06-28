@@ -2,14 +2,18 @@
 
 module Reversible.UnivalentFibrations where
 
-open import UnivalentTypeTheory
+open import Type
+open import DependentSum
+open import Paths
+open import Equivalences
+open import PathsInSigma
+open import Univalence
 open import PropositionalTruncation
-open import TwoUniverse using (is-type)
 
 module _ {ℓ} where
   {- The base space of a univalent fibration -}
   U[_] : Type ℓ → Type (lsuc ℓ)
-  U[ T ] = Σ (Type ℓ) (is-type T)
+  U[ T ] = Σ (Type ℓ) (λ X → ∥ X == T ∥)
 
   El[_] : (T : Type ℓ) → U[ T ] → Type ℓ
   El[ _ ] = p₁
@@ -20,9 +24,13 @@ module _ {ℓ} where
   lift : (T : Type ℓ) → U[ T ]
   lift T = T , ∣ refl T ∣
 
+  lift-equiv : {X : Type ℓ} → X ≃ X → lift X == lift X
+  lift-equiv {X} e = dpair= (ua e , identify _ _)
+
   `id : {T : Type ℓ} {A : U[ T ]} → A == A
   `id {_} {A} = refl A
 
+{-
 infixl 7 _`×_
 infixl 6 _`+_
 data Names : Type₀ where
@@ -38,3 +46,4 @@ El = λ
     `1       → 𝟙;
     (X `+ Y) → El X + El Y;
     (X `× Y) → El X × El Y }
+-}
