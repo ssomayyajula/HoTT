@@ -1,46 +1,74 @@
 module Reversible.Pi.Semantics where
 
-open import Type using (Type)
-open import Paths using (_==_; !; _◾_; ap; refl; tpt)
-open import DependentSum using (Σ; _,_)
+open import Type using (Type₀)
+open import One using (𝟙)
+open import Zero using (𝟘)
+
+open import Paths
+open import DependentSum using (Σ; _×_; _,_)
+open import Coproduct
 open import Functions using (_∘_)
-open import Equivalences using (_≃_; path-to-eqv; ide)
-open import Univalence using (ua; ua-η; ua-ide)
-open import PathsInSigma using (dpair=; dpair=-e₁; dpair=-e₂; dpair=-η; dpair=-β₁)
-open import PropositionalTruncation using (identify)
-open import OneTypes using (prop-is-set)
+open import Equivalences
+open import Univalence
+open import PathsInSigma
 
-open import Data.Fin using (Fin)
-open import Data.Nat using (ℕ)
+open import Data.Nat using (ℕ; zero; suc)
+open import Data.Fin using (Fin; inject+)
+open import Data.Vec
+--open import Agda.Builtin.Equality using (subst)
 
-open import Reversible.UnivalentFibrations using (U[_]; lift; lift-equiv)
-open import Reversible.Pi.CPerm using (CPerm; perm-to-equiv; equiv-to-perm; η; ε)
+open import Reversible.Pi.Syntax
+open import Reversible.Pi.FinUniverse
+open import Reversible.UnivalentFibrations
+open import Reversible.Pi.AFin
+open import Reversible.Pi.CPerm
 
-module _ {ℓ₁ ℓ₂} {X : Type ℓ₁} {P : X → Type ℓ₂} where
-  ap-dpair=-e-out : {x y : X} → {ux : P x} → {uy : P y}
-                     → {p q : (x , ux) == (y , uy)}
-                     → (α : dpair=-e₁ p == dpair=-e₁ q)
-                     → (tpt _ α (dpair=-e₂ p) == dpair=-e₂ q)
-                     → (p == q)
-  ap-dpair=-e-out {p = p} {q} α β = ! (dpair=-η p)
-                                    ◾ ap dpair= (dpair= (α , β))
-                                    ◾ dpair=-η q
+⟦_⟧ₜ : U → Type₀
+⟦ ZERO ⟧ₜ        = 𝟘
+⟦ ONE  ⟧ₜ        = 𝟙
+⟦ PLUS  t₁ t₂ ⟧ₜ = ⟦ t₁ ⟧ₜ + ⟦ t₂ ⟧ₜ
+--⟦ TIMES t₁ t₂ ⟧ₜ = ⟦ t₁ ⟧ₜ × ⟦ t₂ ⟧ₜ
 
-all-eqvs-fin : {m n : ℕ} (f : Fin m ≃ Fin n) → Σ (CPerm m n) (λ p → f == perm-to-equiv p)
-all-eqvs-fin f = equiv-to-perm f , ! (η f)
+⟦_⟧₁ : {X Y : U} → X ⟷ Y → ⟦ X ⟧ₜ ≃ ⟦ Y ⟧ₜ
+⟦ unite₊l ⟧₁ = (λ { (i₁ ()); (i₂ x) → x }) , qinv-is-equiv (i₂ , (λ { (i₁ ()); (i₂ x) → refl (i₂ x) }) , refl)
+⟦ uniti₊l ⟧₁ = !e ⟦ unite₊l ⟧₁
+⟦ _ ⟧₁ = {!!}
 
-all-1-paths-fin : {m n : ℕ} (l : Fin m == Fin n) → Σ (CPerm m n) (λ p → l == ua (perm-to-equiv p))
-all-1-paths-fin {m} {n} = φ ∘ all-eqvs-fin ∘ path-to-eqv where
-  φ : {l : Fin m == Fin n} → Σ (CPerm m n) (λ p → path-to-eqv l == perm-to-equiv p) →
-                              Σ (CPerm m n) (λ p → l == ua (perm-to-equiv p))
-  φ {l} (p , e) = p , ! (ua-η l) ◾ ap ua e
+⟦_⟧ₚ : {X Y : U} → X ⟷ Y → CPerm (size X) (size Y)
+⟦ _ ⟧ₚ = {!!}
 
-`Fin : (n : ℕ) → U[ Fin n ]
-`Fin n = lift (Fin n)
+cmpl1-lem : {X Y : U} → (p : CPerm (size X) (size Y)) → Σ (X ⟷ Y) (λ `p → ⟦ `p ⟧ₚ == p)
+cmpl1-lem = {!!}
 
-all-1-paths : {n : ℕ} (l : `Fin n == `Fin n) →
-  Σ (CPerm n n) (λ p → l == lift-equiv (perm-to-equiv p))
-all-1-paths {n} = φ ∘ all-1-paths-fin ∘ dpair=-e₁ where
-  φ : {l : `Fin n == `Fin n} → Σ (CPerm n n) (λ p → dpair=-e₁ l == ua (perm-to-equiv p)) →
-                                Σ (CPerm n n) (λ p → l == lift-equiv (perm-to-equiv p))
-  φ (p , e) = p , ap-dpair=-e-out (e ◾ ! (dpair=-β₁ (ua _ , _))) (prop-is-set identify _ _ _ _)
+{-norm : (X : U) → ⟦ X ⟧ₜ ≃ Fin (size X)
+norm ZERO = {!!}
+norm ONE = {!!}
+norm _ = {!!}-}
+
+{-# TERMINATING #-}
+comm : (m n : ℕ) → Data.Nat._+_ m n == Data.Nat._+_ n m
+comm 0 0 = refl 0
+comm 0 (suc n) = {!!}
+comm (suc m) 0 = ! (comm 0 (suc m))
+comm (suc m) (suc n) = {!!}
+
+norm : (X : U) → ⟦ X ⟧ₜ ≃ Fin (size X)
+norm ZERO = {!!}
+norm ONE = {!!} --(i₁ , qinv-is-equiv ((λ { (i₁ x) → x; (i₂ ()) }) , refl , (λ { (i₁ x) → refl (i₁ x); (i₂ ()) })))
+norm (PLUS X Y) = let (fx , ex) = norm X in
+                  let (fy , ey) = norm Y in
+                  let (gx , εx , ηx) = hae-is-qinv ex in
+                  let (gy , εy , ηy) = hae-is-qinv ey in
+                  (λ { (i₁ x) → inject+ (size Y) (fx x);
+                       (i₂ y) → let l = inject+ (size X) (fy y) in {!!} }) ,
+                  qinv-is-equiv ({!!} , {!!} , {!!})
+
+cmpl1 : {X Y : U} → (p : ⟦ X ⟧ₜ ≃ ⟦ Y ⟧ₜ) → Σ (X ⟷ Y) (λ `p → ⟦ `p ⟧₁ == p)
+cmpl1 p with cmpl1-lem (equiv-to-perm ({!!} p)) -- use norm
+...   | (`p , e) = (`p , {!!})
+
+{-
+cmpl1 : {X Y : U} → (p : ⟦ X ⟧ₜ ≃ ⟦ Y ⟧ₜ) → Σ (X ⟷ Y) (λ `p → ⟦ `p ⟧₁ == p)
+cmpl1 (f , g , ε , η , τ) with cmpl1-lem (equiv-to-perm {!!}) -- use norm
+...     | (`p , e) = (`p , {!!})
+-}

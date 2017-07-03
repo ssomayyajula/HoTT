@@ -21,11 +21,12 @@ module _ {ℓ} where
   Ũ : Type ℓ → Type (lsuc ℓ)
   Ũ T = Σ U[ T ] El[ T ]
 
-  lift : (T : Type ℓ) → U[ T ]
-  lift T = T , ∣ refl T ∣
+  infix 100 `_
+  `_ : (T : Type ℓ) → U[ T ]
+  ` T = T , ∣ refl T ∣
 
-  lift-equiv : {X : Type ℓ} → X ≃ X → lift X == lift X
-  lift-equiv {X} e = dpair= (ua e , identify _ _)
+  lift-equiv : {X : Type ℓ} → (e : X ≃ X) → ` X == ` X --tpt _ (ua e) (lift X) == lift Y
+  lift-equiv e = dpair= (ua e , identify _ _) --dpair= (ua e , identify _ _)
 
   `id : {T : Type ℓ} {A : U[ T ]} → A == A
   `id {_} {A} = refl A

@@ -38,7 +38,7 @@ postulate
   ρ : loop ◾ loop == refl base
   φ : has-lvl K lvl-1
 
-module Ind-K {ℓ} (P     : K → 1types ℓ)
+2module Ind-K {ℓ} (P     : K → 1types ℓ)
                  (base* : p₁ (P base))
                  (loop* : PathOver (p₁ ∘ P) loop base* base*)
                  (ρ*    : PathOver (λ p → PathOver (p₁ ∘ P) p base* base*) ρ {!!} {!!}) where
