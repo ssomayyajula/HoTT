@@ -10,6 +10,8 @@ open import PathsInSigma
 open import Univalence
 open import PropositionalTruncation
 
+open import Reversible.Utils
+
 module _ {ℓ} where
   {- The base space of a univalent fibration -}
   U[_] : Type ℓ → Type (lsuc ℓ)
@@ -25,26 +27,16 @@ module _ {ℓ} where
   `_ : (T : Type ℓ) → U[ T ]
   ` T = T , ∣ refl T ∣
 
-  lift-equiv : {X : Type ℓ} → (e : X ≃ X) → ` X == ` X --tpt _ (ua e) (lift X) == lift Y
-  lift-equiv e = dpair= (ua e , identify _ _) --dpair= (ua e , identify _ _)
+  `equiv : ∀ {X Y : Type ℓ} → (e : X ≃ Y) → tpt U[_] (ua e) (` X) == ` Y
+  `equiv = ind≃ (λ {X} {Y} e → tpt U[_] (ua e) (` X) == ` Y)
+    (λ X → tpt U[_] (ua (ide X)) (` X)
+              ==⟨ ap (λ p → tpt U[_] p (` X)) (ua-ide X) ⟩
+            tpt U[_] (refl X) (` X)
+              ==⟨ refl _ ⟩
+            (` X ∎))
+
+  `loop : ∀ {X : Type ℓ} → (e : X ≃ X) → ` X == ` X
+  `loop e = dpair= (ua e , identify _ _)
 
   `id : {T : Type ℓ} {A : U[ T ]} → A == A
   `id {_} {A} = refl A
-
-{-
-infixl 7 _`×_
-infixl 6 _`+_
-data Names : Type₀ where
-  `0 : Names
-  `1 : Names
-  _`+_ : Names → Names → Names
-  _`×_ : Names → Names → Names
-
-{-# TERMINATING #-}
-El : Names → Type₀
-El = λ
-  { `0       → 𝟘;
-    `1       → 𝟙;
-    (X `+ Y) → El X + El Y;
-    (X `× Y) → El X × El Y }
--}

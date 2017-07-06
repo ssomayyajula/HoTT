@@ -13,7 +13,7 @@ open import OneTypes using (prop-is-set)
 open import Data.Fin using (Fin)
 open import Data.Nat using (ℕ)
 
-open import Reversible.UnivalentFibrations using (U[_]; `_; lift-equiv)
+open import Reversible.UnivalentFibrations using (U[_]; `_; `loop)
 open import Reversible.Pi.CPerm using (CPerm; perm-to-equiv; equiv-to-perm; η)
 
 module _ {ℓ₁ ℓ₂} {X : Type ℓ₁} {P : X → Type ℓ₂} where
@@ -35,9 +35,9 @@ all-1-paths-fin {m} {n} = φ ∘ all-eqvs-fin ∘ path-to-eqv where
                               Σ (CPerm m n) (λ p → l == ua (perm-to-equiv p))
   φ {l} (p , e) = p , ! (ua-η l) ◾ ap ua e
 
-all-1-paths : {n : ℕ} (l : ` Fin n == ` Fin n) →
-  Σ (CPerm n n) (λ p → l == lift-equiv (perm-to-equiv p))
-all-1-paths {n} = φ ∘ all-1-paths-fin ∘ dpair=-e₁ where
+all-1-paths : {m n : ℕ} {m=n : m == n} (l : ` Fin m == ` Fin n) →
+  Σ (CPerm n n) (λ p → l == `loop (perm-to-equiv p))
+all-1-paths {n = n} {refl _} = φ ∘ all-1-paths-fin ∘ dpair=-e₁ where
   φ : {l : ` Fin n == ` Fin n} → Σ (CPerm n n) (λ p → dpair=-e₁ l == ua (perm-to-equiv p)) →
-                                Σ (CPerm n n) (λ p → l == lift-equiv (perm-to-equiv p))
+                                Σ (CPerm n n) (λ p → l == `loop (perm-to-equiv p))
   φ (p , e) = p , ap-dpair=-e-out (e ◾ ! (dpair=-β₁ _)) (prop-is-set identify _ _ _ _)
