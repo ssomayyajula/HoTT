@@ -5,22 +5,26 @@ module Reversible.Pi.Semantics where
 open import Type using (Type; _⊔_; Type₀; Type₁)
 open import Zero using (𝟘)
 open import One
-open import Paths using (_==_; refl; !; _◾_; ap; tpt; ind=)
+open import Paths using (_==_; refl; !; _◾_; ap; tpt)
 open import Coproduct
-open import DependentSum using (Σ; _,_; _×_; p₁)
-open import Functions using (_∘_)
+open import DependentSum using (Σ; _,_; _×_; p₁; p₂)
+open import Functions using (id; _∘_)
 open import Univalence using (ua)
+open import Homotopies using (_∼_)
 open import Equivalences using (_≃_; ide; !e; _●_; qinv-is-equiv; hae-is-qinv)
 open import NaturalNumbers
 open import PropositionalTruncation using (∣_∣; recTrunc; identify)
 
-open import PathsInSigma using (dpair=; pair=; dpair=-e₁)
+open import PathsInSigma using (dpair=; pair=)
 
 open import Reversible.Pi.Syntax
 --open import Reversible.Pi.FinUniverse using (all-1-paths)
 
+open import Reversible.Utils
+
 open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
 open UnivalentUniverseOfFiniteTypes
+open IsFiniteIsProp using (is-finite-is-prop)
 
 M : Type₁
 M = Σ Type₀ is-finite
@@ -100,54 +104,35 @@ normalizeC (TIMES t₀ t₁) =
       (λ { (a , b) → pair= (εf a , εg b) }) ,
       (λ { (c , d) → pair= (ηf c , ηg d) }))
 
-toNames : ℕ → Names
-toNames 0        = `0
-toNames (succ n) = `1+ (toNames n)
-
-toU : Names → U
-toU `0      = ZERO
-toU (`1+ n) = PLUS ONE (toU n)
+size-el : (n : ℕ) → #⟦ fromSize n ⟧₀ == El n
+size-el 0        = refl _
+size-el (succ n) = ap (_+_ 𝟙) (size-el n)
 
 ⟦_⟧₀ : U → M
-⟦ T ⟧₀ = #⟦ T ⟧₀ , fromU T , ∣ ua (lem (size T) ● #⟦ normalizeC T ⟧₁) ∣ where
-  fromU : U → Names
-  fromU = toNames ∘ size
-  
-  lem : (n : ℕ) → #⟦ fromSize n ⟧₀ ≃ El (toNames n)
-  lem 0        = ide _
-  lem (succ n) =
-    let (f , e)     = lem n         in
-    let (g , ε , η) = hae-is-qinv e in
-    (λ { (i₁ 0₁) → i₁ 0₁; (i₂ x) → i₂ (f x) }) , qinv-is-equiv
-      ((λ { (i₁ 0₁) → i₁ 0₁; (i₂ y) → i₂ (g y) }) ,
-       (λ { (i₁ 0₁) → refl _; (i₂ x) → ap i₂ (ε x) }) ,
-       (λ { (i₁ 0₁) → refl _; (i₂ y) → ap i₂ (η y) }))
+⟦ T ⟧₀ = #⟦ T ⟧₀ , size T , ∣ ua #⟦ normalizeC T ⟧₁ ◾ size-el (size T) ∣
 
 ⟦_⟧₀⁻¹ : M → U
-⟦ _ , name , _ ⟧₀⁻¹ = toU name
+⟦ _ , n , _ ⟧₀⁻¹ = fromSize n
 
 ⟦⟦_⟧₀⟧₀⁻¹ : (T : U) → ⟦ ⟦ T ⟧₀ ⟧₀⁻¹ ⟷ T
-⟦⟦ T ⟧₀⟧₀⁻¹ = tpt (λ t → t ⟷ T) (lem (size T)) (_⟷_.! (normalizeC T)) where
-  lem : (n : ℕ) → fromSize n == toU (toNames n)
-  lem 0        = refl _
-  lem (succ n) = ap (PLUS ONE) (lem n)
+⟦⟦ T ⟧₀⟧₀⁻¹ = _⟷_.! (normalizeC T)
+
+⟦⟦_⟧₀⁻¹⟧₀ : (X : M) → ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X
+⟦⟦ X@(T , n , p) ⟧₀⁻¹⟧₀ = {-dpair= (recTrunc _ (λ p → size-el n ◾ Paths.! p) {!!} p , dpair= ({!!} , {!!}))-}
+  recTrunc _ (λ p' → dpair= (size-el n ◾ Paths.! p' ,
+  dpair= ({!!} ,
+          {!!})))
+          {!!}
+          p where
+
+⟦_⟧₁ : {X Y : U} → X ⟷ Y → ⟦ X ⟧₀ == ⟦ Y ⟧₀
+⟦_⟧₁ {X} {Y} c = dpair= (ua #⟦ c ⟧₁ , dpair= (lem c , identify _ _)) where
+  lem : (c : X ⟷ Y) → p₁ (tpt is-finite (ua #⟦ c ⟧₁) (size X , ∣ ua #⟦ normalizeC X ⟧₁ ◾ size-el (size X) ∣)) == size Y
+  lem unite₊l = {!!}
+  lem = {!!}
 
 ⟦_⟧₁⁻¹ : {X Y : M} → X == Y → ⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹
 ⟦ refl _ ⟧₁⁻¹ = id⟷
 
-completeness₀ : {t s : U} → ⟦ t ⟧₀ == ⟦ s ⟧₀ → t ⟷ s
-completeness₀ {t} {s} p = _⟷_.! ⟦⟦ t ⟧₀⟧₀⁻¹ ◎ (⟦ p ⟧₁⁻¹ ◎ ⟦⟦ s ⟧₀⟧₀⁻¹)
-
-{-
-⟦⟦_⟧₀⁻¹⟧₀ : (T : M) → ⟦ ⟦ T ⟧₀⁻¹ ⟧₀ == T
-⟦⟦ T@(m , flat , p) ⟧₀⁻¹⟧₀ = dpair= (recTrunc _ (λ x → ! (x ◾ lem)) {!!} p , {!!}) --recTrunc (⟦ ⟦ T ⟧₀⁻¹ ⟧₀ == T) (λ x → ! (x ◾ lem)) ({!!}) p
- where
-  lem : {flat : Names} → El flat == #⟦ ⟦ T ⟧₀⁻¹ ⟧₀
-  lem {`0} = {!!}
-  lem {`1+ n} = {!!}
-
-⟦_⟧₁ : {X Y : U} → X ⟷ Y → ⟦ X ⟧₀ == ⟦ Y ⟧₀
-⟦_⟧₁ {X} {Y} c = dpair= (ua #⟦ c ⟧₁ , dpair= ({!!} , identify _ _)) where
-  lem : (X Y : U) → p₁ (tpt is-finite (ua #⟦ c ⟧₁) (fromU X , ∣ ua (mlem (size X) ● #⟦ normalizeC X ⟧₁) ∣)) == fromU Y
-  lem = {!!}
--}
+cmpl₀ : (x : M) → Σ U (λ t → ⟦ t ⟧₀ == x)
+cmpl₀ x = ⟦ x ⟧₀⁻¹ , ⟦⟦ x ⟧₀⁻¹⟧₀
