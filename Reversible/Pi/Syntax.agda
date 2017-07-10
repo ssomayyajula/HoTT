@@ -1,18 +1,10 @@
 module Reversible.Pi.Syntax where
 
-open import NaturalNumbers
-
 data U : Set where
   ZERO  : U
   ONE   : U
   PLUS  : U → U → U
   TIMES : U → U → U
-
-size : U → ℕ
-size ZERO = 0
-size ONE  = 1
-size (PLUS  t₁ t₂) = add (size t₁) (size t₂)
-size (TIMES t₁ t₂) = mult (size t₁) (size t₂)
 
 data _⟷_ : U → U → Set where
   unite₊l : {t : U} → PLUS ZERO t ⟷ t
@@ -39,7 +31,7 @@ data _⟷_ : U → U → Set where
   --distl   : {t₁ t₂ t₃ : U} → TIMES t₁ (PLUS t₂ t₃) ⟷ PLUS (TIMES t₁ t₂) (TIMES t₁ t₃)
   --factorl : {t₁ t₂ t₃ : U } →
   --          PLUS (TIMES t₁ t₂) (TIMES t₁ t₃) ⟷ TIMES t₁ (PLUS t₂ t₃)
-  --id⟷    : {t : U} → t ⟷ t
+  id⟷    : {t : U} → t ⟷ t
   !        : {t₁ t₂ : U} → t₁ ⟷ t₂ → t₂ ⟷ t₁
   _◎_     : {t₁ t₂ t₃ : U} → (t₁ ⟷ t₂) → (t₂ ⟷ t₃) → (t₁ ⟷ t₃)
   _⊕_     : {t₁ t₂ t₃ t₄ : U} → 
@@ -50,8 +42,8 @@ data _⟷_ : U → U → Set where
 uniti₊l : {t : U} → t ⟷ PLUS ZERO t
 uniti₊l = ! unite₊l
 
-id⟷ : {t : U} → t ⟷ t
-id⟷ = uniti₊l ◎ unite₊l
+{-id⟷ : {t : U} → t ⟷ t
+id⟷ = uniti₊l ◎ unite₊l-}
 
 assocr₊ : {t₁ t₂ t₃ : U} → PLUS (PLUS t₁ t₂) t₃ ⟷ PLUS t₁ (PLUS t₂ t₃)
 assocr₊ = ! assocl₊
