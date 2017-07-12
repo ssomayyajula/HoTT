@@ -154,10 +154,20 @@ postulate
           
             ==⟨ ap (tpt _ (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n)) (apd _ p₂ (tpt-dpair (size-el n))) ⟩
           
-          tpt (λ m → ∥ El n == El m ∥) (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) (tpt (uncurry (λ e m → ∥ e == El m ∥))
+          tpt (λ m → ∥ El n == El m ∥) (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) (tpt (λ v → ∥ p₁ v == El (p₂ v) ∥)
             (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))) ∣ ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n)) ∣)
           
-          
+          ==⟨ ap (λ x → tpt _ (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) (tpt (λ v → ∥ p₁ v == El (p₂ v) ∥)
+                 (dpair= (size-el n , x)) ∣ ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n)) ∣))
+               (! (apd loops refl (! (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n))) ◾
+                  (tpt-loops (! (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n)) (refl n)) {-◾
+                  ap (λ x → ! (! (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n)) ◾ x) (◾unitl (! (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n))) ◾
+                  ◾invl (! (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n))-} ) ⟩
+          tpt (λ v → ∥ El n == El v ∥) (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) (tpt (λ v → ∥ p₁ v == El (p₂ v) ∥)
+            (dpair= (size-el n , ! (! (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n)) ◾
+                                       refl n ◾ ! (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n)))
+            ∣ ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n)) ∣)
+            
             ==⟨ {!!} ⟩
           
          (∣ refl (El n) ∣ ∎))))
