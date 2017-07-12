@@ -14,23 +14,25 @@ open import Equivalences using (_≃_; ide; !e; _●_; qinv-is-equiv; hae-is-qin
 open import NaturalNumbers
 open import PropositionalTruncation using (∥_∥; ∣_∣; recTrunc; identify)
 
-open import PathsInSigma using (dpair=; pair=; dpair=-e₁)
+open import PathsInSigma using (dpair=)
 
 open import Reversible.Pi.Syntax
 open import Reversible.Pi.Level0
 
+size= : {X Y : U} → X ⟷ Y → size X == size Y
+size= = {!!}
+
 ⟦_⟧₁ : {X Y : U} → X ⟷ Y → ⟦ X ⟧₀ == ⟦ Y ⟧₀
-⟦_⟧₁ {X} {Y} c = dpair= (ua #⟦ c ⟧₁ , dpair= ({!!} , identify _ _))
+⟦_⟧₁ c = dpair= (ua #⟦ c ⟧₁ ,
+  dpair= (ap p₁ (tpt-dpair (ua #⟦ c ⟧₁)) ◾
+                 tpt-const (ua #⟦ c ⟧₁)  ◾
+                 size= c , identify _ _))
 
 ⟦_⟧₁⁻¹ : {X Y : M} → X == Y → ⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹
 ⟦ refl _ ⟧₁⁻¹ = id⟷
 
-⟦⟦_⟧₁⁻¹⟧₁ : {X Y : M} (p : X == Y) → ⟦ ⟦ p ⟧₁⁻¹ ⟧₁ == let l = recTrunc (tpt ) ⟦⟦ X ⟧₀⁻¹⟧₀ in {!!}
-⟦⟦_⟧₁⁻¹⟧₁ = {!!}
+{-⟦⟦_⟧₁⁻¹⟧₁ : {X Y : M} (p : X == Y) → ∣∣ recTrunc _ (λ P → tpt (λ x → x == Y) P p) _  ⟦⟦ X ⟧₀⁻¹⟧₀ ∣∣
+⟦⟦ refl _ ⟧₁⁻¹⟧₁ = {!!}-}
 
---⟦⟦ X ⟧₀⁻¹⟧₀
-
---recTrunc  (tpt (λ x → x == ⟦ ⟦ Y ⟧₀⁻¹ ⟧₀) p ⟦ c ⟧₁) identify ⟦⟦ X ⟧₀⁻¹⟧₀
-
-cmpl₁ : {X Y : M} (p : X == Y) → Σ (⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹) (λ c → ∥ ⟦ c ⟧₁  == {!!} ∥)
-cmpl₁ (refl _) = {!!} --⟦ p ⟧₁⁻¹ , ⟦⟦ p ⟧₁⁻¹⟧₁
+cmpl₁ : {X Y : M} (p : X == Y) → Σ (⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹) (λ c → ∥ ⟦ c ⟧₁ == {!!} ∥)
+cmpl₁ p = ⟦ p ⟧₁⁻¹ , {!!} --⟦ p ⟧₁⁻¹ , ⟦⟦ p ⟧₁⁻¹⟧₁
