@@ -143,10 +143,6 @@ module _ {ℓ} {ℓ'} {A : Type ℓ} {x y : A} {B : Type ℓ'} {b : B} where
   ap-p₂-refl : (p : x == y) → ap p₂ (dpair= (p , refl (tpt (λ _ → B) p b))) == ! (tpt-const p)
   ap-p₂-refl (refl _) = refl _
 
-size∘fromSize~id : size ∘ fromSize ∼ id
-size∘fromSize~id zero = refl _
-size∘fromSize~id (succ n) = ap succ (size∘fromSize~id n)
-
 ⟦⟦_⟧₀⁻¹⟧₀ : (X : M) → ∥ ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X ∥
 ⟦⟦ T , n , p ⟧₀⁻¹⟧₀ = recTrunc (∥ ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p ∥) (∣_∣ ∘ lem) identify p
   where
@@ -155,21 +151,7 @@ size∘fromSize~id (succ n) = ap succ (size∘fromSize~id n)
   eq (succ m) = ap (_+_ 𝟙) (eq m)
 
   ueq : (x y : M) → (x == y) ≃ (p₁ x ≃ p₁ y)
-  ueq (S , p) (T , q) = f , qinv-is-equiv (g , η , ε)
-    where
-    f : S , p == T , q → S ≃ T
-    f = path-to-eqv ∘ (ap p₁)
-
-    g : S ≃ T → S , p == T , q
-    g eq = dpair= ((ua eq) , IsFiniteIsProp.is-finite-is-prop _ _ _)
-
-    η : g ∘ f ∼ id
-    η (refl _) = ap dpair= (dpair= ((ua-ide _) , prop-is-set (IsFiniteIsProp.is-finite-is-prop _) _ _ _ _))
-
-    ε : f ∘ g ∼ id
-    ε eq = ap path-to-eqv (dpair=-β₁ _) ◾ ua-β eq
+  ueq x y = (tpt-eqv p₁) , (finite-types-is-univ x y)
   
   lem : T == El n → ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p
-  lem (refl .(El _)) = #⟦ fromSize n ⟧₀ , size (fromSize n) , ∣ ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el _ ∣
-                   ==⟨ p₁ (p₂ (ueq _ _)) (path-to-eqv (eq n)) ⟩
-                       (El n , n , p ∎)
+  lem (refl .(El _)) = p₁ (p₂ (ueq _ _)) (path-to-eqv (eq n))
