@@ -4,23 +4,24 @@ module Reversible.Pi.Level0 where
 
 open import Type using (Type; Type₀; Type₁)
 open import Zero using (𝟘)
+open import OneTypes
 open import One
 open import Paths using (_==_; refl; _◾_; _◾-; -◾_; !; ap; apd; tpt; tpt◾; tpt∘; loops; tpt-loops; !!; ◾unitl; ◾invl; tpt-paths; tpt-paths-l; tpt-paths-r; ap∘; ap!; ap◾; ◾assoc; !◾)
 open import Coproduct
 open import DependentSum using (Σ; _×_; _,_; p₁; p₂; uncurry)
-open import PathsInSigma using (dpair=; pair=)
+open import PathsInSigma
 open import Functions using (_∘_; id)
-open import Equivalences using (_≃_; ide; !e; _●_; qinv-is-equiv; hae-is-qinv; is-retract)
-open import Univalence using (ua; ua-ide)
+open import Equivalences
+open import Univalence
 open import NaturalNumbers
-open import PropositionalTruncation using (∥_∥; ∣_∣; indTrunc; identify)
-open import Homotopies using (happly)
+open import PropositionalTruncation
+open import Homotopies using (happly; _∼_)
 
 open import Reversible.Pi.Syntax hiding (!)
 open import Reversible.Utils
 
 open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
-open UnivalentUniverseOfFiniteTypes using (El; is-finite)
+open UnivalentUniverseOfFiniteTypes
 
 M : Type₁
 M = Σ Type₀ is-finite
@@ -141,98 +142,34 @@ module _ {ℓ} {ℓ'} {A : Type ℓ} {P : A → Type ℓ'} {x y : A} {ux : P x} 
 module _ {ℓ} {ℓ'} {A : Type ℓ} {x y : A} {B : Type ℓ'} {b : B} where
   ap-p₂-refl : (p : x == y) → ap p₂ (dpair= (p , refl (tpt (λ _ → B) p b))) == ! (tpt-const p)
   ap-p₂-refl (refl _) = refl _
-{-
-  ap-tpt-const : (f : {!!} → {!!}) (p : x == y) → ap f (tpt-const p) == tpt-const (ap f p)
-  ap-tpt-const = {!!}
--}
 
-postulate
-  normalizeC-id : (n : ℕ) → ua #⟦ normalizeC (fromSize n) ⟧₁ == tpt (λ m → #⟦ fromSize n ⟧₀ == #⟦ fromSize m ⟧₀) (! (p₂ (p₂ ℕ-U-is-retract) n)) (refl _)
---normalizeC-id 0 = ua-ide _
---normalizeC-id (succ n) = let l = normalizeC-id n in {!!}
+size∘fromSize~id : size ∘ fromSize ∼ id
+size∘fromSize~id zero = refl _
+size∘fromSize~id (succ n) = ap succ (size∘fromSize~id n)
 
---need: ⟦ ⟦ El n , n , ∣ refl (El n) ∣ ⟧₀⁻¹ ⟧₀ == El n , n , ∣ refl (El n) ∣
---      #⟦ fromSize n ⟧₀ , size (fromSize n) , ∣ ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n)) ∣
 ⟦⟦_⟧₀⁻¹⟧₀ : (X : M) → ∥ ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X ∥
-⟦⟦ T , n , p ⟧₀⁻¹⟧₀ = indTrunc (λ p → ∥ ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p ∥) (λ { (refl _) → ∣
-  dpair= (size-el n ,
-  dpair= (ap p₁ (tpt-dpair (size-el n)) ◾ tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n ,
-         (tpt (λ m → ∥ El n == El m ∥) (ap p₁ (tpt-dpair (size-el n)) ◾ tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n)
-           (p₂
-             (tpt is-finite (size-el n) (size (fromSize n) , ∣ ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n)) ∣)))
-          
-            ==⟨ tpt◾ (ap p₁ (tpt-dpair (size-el n))) (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) _ ⟩
-          
-          tpt _ (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) (tpt (λ m → ∥ El n == El m ∥) (ap p₁ (tpt-dpair (size-el n))) _)
-         
-            ==⟨ ap (tpt _ (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n)) (happly (! (tpt∘ p₁ (tpt-dpair (size-el n)))) _) ⟩
-          
-          tpt _ (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) (tpt (λ z → ∥ El n == El (p₁ z) ∥) (tpt-dpair (size-el n))
-            (p₂ (tpt is-finite (size-el n) (size (fromSize n) , ∣ ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n)) ∣))))
-          
-            ==⟨ ap (tpt _ (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n)) (apd _ p₂ (tpt-dpair (size-el n))) ⟩
-          
-          tpt (λ m → ∥ El n == El m ∥) (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) (tpt (λ v → ∥ p₁ v == El (p₂ v) ∥)
-            (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))) ∣ ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n)) ∣)
-          
-            ==⟨ ap (tpt _ (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n)) (tpt-trunc (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))) lem1) ⟩
+⟦⟦ T , n , p ⟧₀⁻¹⟧₀ = recTrunc (∥ ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p ∥) (∣_∣ ∘ lem) identify p
+  where
+  eq : (m : ℕ) → #⟦ fromSize m ⟧₀ == El m
+  eq zero = refl _
+  eq (succ m) = ap (_+_ 𝟙) (eq m)
 
-         tpt (λ m → ∥ El n == El m ∥) (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) ∣ _ ∣
-         
-           ==⟨ tpt-trunc (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) lem2 ⟩
-         
-         (∣ refl (El n) ∣ ∎))))
-  ∣ }) (λ _ → identify) p where
+  ueq : (x y : M) → (x == y) ≃ (p₁ x ≃ p₁ y)
+  ueq (S , p) (T , q) = f , qinv-is-equiv (g , η , ε)
+    where
+    f : S , p == T , q → S ≃ T
+    f = path-to-eqv ∘ (ap p₁)
 
-  lem1 : tpt (λ v → p₁ v == El (p₂ v))
-            (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))) (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ==
-         ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ ! (ap El (tpt-const (size-el n)))
-  lem1 = tpt (λ v → p₁ v == El (p₂ v))
-            (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))) (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n)))
-            ==⟨ (tpt-paths p₁ (El ∘ p₂) (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))) (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n)))) ⟩
-         ! (ap p₁ (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n)))))) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ (ap (El ∘ p₂) (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))))
-            ==⟨ ap (λ x → ! x ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ (ap (El ∘ p₂) (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))))) (ap-p₁-dpair (size-el n) (refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))) ⟩
-         ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ (ap (El ∘ p₂) (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n))))))
-         {-  ==⟨ ap (λ x → _ ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el x) ◾ _) (p₂ (p₂ ℕ-U-is-retract) n) ⟩
-         ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el n) ◾ (ap p₂ _)-}
-           ==⟨ ap (λ x → ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ x) (ap∘ El p₂ (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n)))))) ⟩
-         ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ (ap El (ap p₂ (dpair= (size-el n , refl (tpt (λ _ → ℕ) (size-el n) (size (fromSize n)))))))
-           ==⟨ ap (λ x → ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ (ap El x)) (ap-p₂-refl (size-el n)) ⟩
-         ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ (ap El (! (tpt-const (size-el n))))
-           ==⟨ ap (λ x → ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ x) (ap! El (tpt-const (size-el n))) ⟩
-         (! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ ! (ap El (tpt-const (size-el n))) ∎)
+    g : S ≃ T → S , p == T , q
+    g eq = dpair= ((ua eq) , IsFiniteIsProp.is-finite-is-prop _ _ _)
 
-  lem2 : tpt (λ m → El n == El m) (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) (! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ ! (ap El (tpt-const (size-el n)))) == refl (El n)
-  lem2 = (tpt-paths-l El (tpt-const (size-el n) ◾ p₂ (p₂ ℕ-U-is-retract) n) _) ◾
-         (◾assoc _ _ _) ◾
-         ap (! (size-el n) ◾-) (◾assoc _ _ _) ◾
-         ap (λ x → ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ ! (ap El (tpt-const (size-el n))) ◾ x) (ap◾ El _ _) ◾
-         ap (λ x → ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ x) (! (◾assoc _ _ _)) ◾
-         ap (λ x → ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ x ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)) (◾invl _) ◾
-         ap (λ x → ! (size-el n) ◾ (ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el (size (fromSize n))) ◾ x) (◾unitl _) ◾
-         ap (λ x → ! (size-el n) ◾ (x ◾ size-el (size (fromSize n))) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)) (normalizeC-id n) ◾
-         ap (λ x → ! (size-el n) ◾ (x ◾ size-el (size (fromSize n))) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)) (tpt-paths-l (#⟦_⟧₀ ∘ fromSize) (! (p₂ (p₂ ℕ-U-is-retract) n)) _) ◾
-         ap (λ x → ! (size-el n) ◾ (x ◾ size-el (size (fromSize n))) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)) (◾unitl _) ◾
-         ap (λ x → ! (size-el n) ◾ (x ◾ size-el (size (fromSize n))) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)) (ap! _ _) ◾
-         ! (◾assoc _ _ _) ◾
-         ap (-◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)) (! (◾assoc _ _ _)) ◾
-         ap (λ x → (x ◾ size-el (size (fromSize n))) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)) (! (!◾ _ _)) ◾
-         --ap (λ x → (! (ap (#⟦_⟧₀ ∘ fromSize) (p₂ (p₂ ℕ-U-is-retract) n)) ◾ x) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)) ({!!}) ◾
-         {!!}
+    η : g ∘ f ∼ id
+    η (refl _) = ap dpair= (dpair= ((ua-ide _) , prop-is-set (IsFiniteIsProp.is-finite-is-prop _) _ _ _ _))
 
-{-
-(! (ap (#⟦_⟧₀ ∘ fromSize) (p₂ (p₂ ℕ-U-is-retract) n) ◾ size-el n) ◾ size-el (size (fromSize n))) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)
-! (ap (#⟦_⟧₀ ∘ fromSize) (p₂ (p₂ ℕ-U-is-retract) n) ◾ size-el n) ◾ size-el (size (fromSize n)) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)
--}
-{-
-  lem3 : (n : ℕ) → ap (#⟦_⟧₀ ∘ fromSize) (p₂ (p₂ ℕ-U-is-retract) n) ◾ size-el n == (! (ap (#⟦_⟧₀ ∘ fromSize) (! (p₂ (p₂ ℕ-U-is-retract) n))) ◾ (size-el n) ◾ (ap El (! (p₂ (p₂ ℕ-U-is-retract) n)))) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)
-  --ap (#⟦_⟧₀ ∘ fromSize) (p₂ (p₂ ℕ-U-is-retract) n) ◾ size-el n == size-el (size (fromSize n)) ◾ ap El (p₂ (p₂ ℕ-U-is-retract) n)
-  lem3 0 = refl _
-  lem3 (succ n) = {!!}
--}
-
-  --lem3 : tpt (λ n → #⟦ fromSize n ⟧₀ == El n) (! (p₂ (p₂ ℕ-U-is-retract) n)) (size-el n) == size-el (size (fromSize n))
-  --lem3 = tpt-paths (#⟦_⟧₀ ∘ fromSize) El (! (p₂ (p₂ ℕ-U-is-retract) n)) _ ◾ ap () ◾ {!!}
-
-cmpl₀ : (X : M) → Σ U (λ T → ∥ ⟦ T ⟧₀ == X ∥)
-cmpl₀ X = ⟦ X ⟧₀⁻¹ , ⟦⟦ X ⟧₀⁻¹⟧₀
+    ε : f ∘ g ∼ id
+    ε eq = ap path-to-eqv (dpair=-β₁ _) ◾ ua-β eq
+  
+  lem : T == El n → ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p
+  lem (refl .(El _)) = #⟦ fromSize n ⟧₀ , size (fromSize n) , ∣ ua #⟦ normalizeC (fromSize n) ⟧₁ ◾ size-el _ ∣
+                   ==⟨ p₁ (p₂ (ueq _ _)) (path-to-eqv (eq n)) ⟩
+                       (El n , n , p ∎)
