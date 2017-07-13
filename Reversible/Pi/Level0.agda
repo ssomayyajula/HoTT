@@ -4,24 +4,22 @@ module Reversible.Pi.Level0 where
 
 open import Type using (Type; Type₀; Type₁)
 open import Zero using (𝟘)
-open import OneTypes
 open import One
-open import Paths using (_==_; refl; _◾_; _◾-; -◾_; !; ap; apd; tpt; tpt◾; tpt∘; loops; tpt-loops; !!; ◾unitl; ◾invl; tpt-paths; tpt-paths-l; tpt-paths-r; ap∘; ap!; ap◾; ◾assoc; !◾)
 open import Coproduct
-open import DependentSum using (Σ; _×_; _,_; p₁; p₂; uncurry)
-open import PathsInSigma
-open import Functions using (_∘_; id)
-open import Equivalences
-open import Univalence
+open import DependentSum using (Σ; _×_; _,_; p₁)
 open import NaturalNumbers
-open import PropositionalTruncation
-open import Homotopies using (happly; _∼_)
+open import Functions using (_∘_; id)
+open import Equivalences using (_≃_; !e; _●_; qinv-is-equiv; hae-is-qinv; path-to-eqv)
 
-open import Reversible.Pi.Syntax hiding (!)
-open import Reversible.Utils
+open import Paths using (_==_; refl; _◾_; ap)
+open import PathsInSigma using (pair=; dpair=)
+open import Univalence using (ua; ua-β; ua-ide)
+open import PropositionalTruncation using (∥_∥; ∣_∣; recTrunc; identify)
 
 open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
 open UnivalentUniverseOfFiniteTypes
+
+open import Reversible.Pi.Syntax
 
 M : Type₁
 M = Σ Type₀ is-finite
@@ -34,15 +32,6 @@ size (TIMES t₁ t₂) = mult (size t₁) (size t₂)
 
 fromSize : ℕ → U
 fromSize = recℕ U ZERO (λ _ → PLUS ONE)
-
-ℕ-U-is-retract : is-retract ℕ U
-ℕ-U-is-retract = size , fromSize , indℕ _ (refl _) (λ _ → ap succ)
-
-#⟦_⟧₀ : U → Type₀
-#⟦ ZERO ⟧₀        = 𝟘
-#⟦ ONE  ⟧₀        = 𝟙
-#⟦ PLUS  t₁ t₂ ⟧₀ = #⟦ t₁ ⟧₀ + #⟦ t₂ ⟧₀
-#⟦ TIMES t₁ t₂ ⟧₀ = #⟦ t₁ ⟧₀ × #⟦ t₂ ⟧₀
 
 canonicalU : U → U
 canonicalU = fromSize ∘ size
@@ -63,12 +52,16 @@ normalizeC (PLUS t₀ t₁) =
 normalizeC (TIMES t₀ t₁) =
   (normalizeC t₀ ⊗ normalizeC t₁) ◎ size* (size t₀) (size t₁)
 
+#⟦_⟧₀ : U → Type₀
+#⟦ ZERO ⟧₀        = 𝟘
+#⟦ ONE  ⟧₀        = 𝟙
+#⟦ PLUS  t₁ t₂ ⟧₀ = #⟦ t₁ ⟧₀ + #⟦ t₂ ⟧₀
+#⟦ TIMES t₁ t₂ ⟧₀ = #⟦ t₁ ⟧₀ × #⟦ t₂ ⟧₀
+
 size-el : (n : ℕ) → #⟦ fromSize n ⟧₀ == El n
-size-el 0        = refl 𝟘
-size-el (succ n) = ap (_+_ 𝟙) (size-el n)
+size-el = indℕ _ (refl 𝟘) (λ _ → ap (_+_ 𝟙))
 
 #⟦_⟧₁ : {X Y : U} → X ⟷ Y → #⟦ X ⟧₀ ≃ #⟦ Y ⟧₀
-#⟦ id⟷ ⟧₁ = ide _
 #⟦ unite₊l ⟧₁ = (λ { (i₁ ()); (i₂ x) → x }) ,
   qinv-is-equiv (i₂ , (λ { (i₁ ()); x@(i₂ _) → refl x }) , refl)
 #⟦ swap₊ ⟧₁ = (λ { (i₁ x) → i₂ x; (i₂ x) → i₁ x }) ,
@@ -121,37 +114,15 @@ size-el (succ n) = ap (_+_ 𝟙) (size-el n)
 ⟦ _ , n , _ ⟧₀⁻¹ = fromSize n
 
 ⟦⟦_⟧₀⟧₀⁻¹ : (T : U) → ⟦ ⟦ T ⟧₀ ⟧₀⁻¹ ⟷ T
-⟦⟦ T ⟧₀⟧₀⁻¹ = _⟷_.! (normalizeC T)
-
-module _ {ℓ} {ℓ'} {ℓ''} {A : Type ℓ} {P : A → Type ℓ'} {Q : Σ A P → Type ℓ''} {x y : A} {uz : Σ (P x) (λ u → Q (x , u))} where
-  tpt-dpair : (p : x == y) → tpt (λ x → Σ (P x) (λ u → Q (x , u))) p uz == (tpt P p (p₁ uz) , tpt Q (dpair= (p , refl (tpt P p (p₁ uz)))) (p₂ uz))
-  tpt-dpair (refl _) = refl _
-
-module _ {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} {b : B} where
-  tpt-const : (p : x == y) → tpt (λ _ → B) p b == b
-  tpt-const (refl _) = refl _
-
-module _ {ℓ} {ℓ'} {A : Type ℓ} {P : A → Type ℓ'} {x y : A} {ux : P x} {uy : P y} where
-  tpt-trunc : (p : x == y) → tpt P p ux == uy → tpt (∥_∥ ∘ P) p ∣ ux ∣ == ∣ uy ∣
-  tpt-trunc (refl _) (refl _) = refl _
-
-module _ {ℓ} {ℓ'} {A : Type ℓ} {P : A → Type ℓ'} {x y : A} {ux : P x} {uy : P y} where
-  ap-p₁-dpair : (p : x == y) (up : tpt P p ux == uy) → ap p₁ (dpair= (p , up)) == p
-  ap-p₁-dpair (refl _) (refl _) = refl _
-
-module _ {ℓ} {ℓ'} {A : Type ℓ} {x y : A} {B : Type ℓ'} {b : B} where
-  ap-p₂-refl : (p : x == y) → ap p₂ (dpair= (p , refl (tpt (λ _ → B) p b))) == ! (tpt-const p)
-  ap-p₂-refl (refl _) = refl _
+⟦⟦ T ⟧₀⟧₀⁻¹ = ! (normalizeC T)
 
 ⟦⟦_⟧₀⁻¹⟧₀ : (X : M) → ∥ ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X ∥
-⟦⟦ T , n , p ⟧₀⁻¹⟧₀ = recTrunc (∥ ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p ∥) (∣_∣ ∘ lem) identify p
-  where
-  eq : (m : ℕ) → #⟦ fromSize m ⟧₀ == El m
-  eq zero = refl _
-  eq (succ m) = ap (_+_ 𝟙) (eq m)
-
-  ueq : (x y : M) → (x == y) ≃ (p₁ x ≃ p₁ y)
-  ueq x y = (tpt-eqv p₁) , (finite-types-is-univ x y)
-  
+⟦⟦ T , n , p ⟧₀⁻¹⟧₀ = recTrunc (∥ ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p ∥) (∣_∣ ∘ lem) identify p where
   lem : T == El n → ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p
-  lem (refl .(El _)) = p₁ (p₂ (ueq _ _)) (path-to-eqv (eq n))
+  lem (refl _) = p₁ (finite-types-is-univ _ _) (path-to-eqv (size-el n))
+
+sound₀ : (T : U) → Σ M (λ X → ⟦ X ⟧₀⁻¹ ⟷ T)
+sound₀ T = ⟦ T ⟧₀ , ⟦⟦ T ⟧₀⟧₀⁻¹
+
+cmpl₀ : (X : M) → Σ U (λ T → ∥ ⟦ T ⟧₀ == X ∥)
+cmpl₀ X = ⟦ X ⟧₀⁻¹ , ⟦⟦ X ⟧₀⁻¹⟧₀

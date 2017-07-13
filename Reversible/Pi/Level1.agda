@@ -22,11 +22,12 @@ open import Reversible.Pi.Level0
 size= : {X Y : U} → X ⟷ Y → size X == size Y
 size= = {!!}
 
-⟦_⟧₁ : {X Y : U} → X ⟷ Y → ⟦ X ⟧₀ == ⟦ Y ⟧₀
-⟦_⟧₁ c = dpair= (ua #⟦ c ⟧₁ ,
-  dpair= (ap p₁ (tpt-dpair (ua #⟦ c ⟧₁)) ◾
+{- tpt-dpair (ua #⟦ c ⟧₁)) ◾
                  tpt-const (ua #⟦ c ⟧₁)  ◾
-                 size= c , identify _ _))
+                 size= c -}
+--ua #⟦ c ⟧₁
+⟦_⟧₁ : {X Y : U} → X ⟷ Y → ⟦ canonicalU X ⟧₀ == ⟦ canonicalU Y ⟧₀
+⟦_⟧₁ c = dpair= ({!!} , dpair= ({!!} , identify _ _))
 
 ⟦_⟧₁⁻¹ : {X Y : M} → X == Y → ⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹
 ⟦ refl _ ⟧₁⁻¹ = id⟷
