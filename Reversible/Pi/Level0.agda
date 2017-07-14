@@ -124,5 +124,7 @@ size-el = indℕ _ (refl 𝟘) (λ _ → ap (_+_ 𝟙))
 sound₀ : (T : U) → Σ M (λ X → ⟦ X ⟧₀⁻¹ ⟷ T)
 sound₀ T = ⟦ T ⟧₀ , ⟦⟦ T ⟧₀⟧₀⁻¹
 
+-- We know there exists a path, but we cannot distinguish it concretely, since
+-- the path between a type in the semiring and its normal form is truncated.
 cmpl₀ : (X : M) → Σ U (λ T → ∥ ⟦ T ⟧₀ == X ∥)
 cmpl₀ X = ⟦ X ⟧₀⁻¹ , ⟦⟦ X ⟧₀⁻¹⟧₀
