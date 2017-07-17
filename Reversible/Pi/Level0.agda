@@ -117,8 +117,8 @@ size-el = indℕ _ (refl 𝟘) (λ _ → ap (_+_ 𝟙))
 ⟦⟦ T ⟧₀⟧₀⁻¹ = ! (normalizeC T)
 
 ⟦⟦_⟧₀⁻¹⟧₀ : (X : M) → ∥ ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X ∥
-⟦⟦ T , n , p ⟧₀⁻¹⟧₀ = recTrunc (∥ ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p ∥) (∣_∣ ∘ lem) identify p where
-  lem : T == El n → ⟦ ⟦ T , n , p ⟧₀⁻¹ ⟧₀ == T , n , p
+⟦⟦ X@(T , n , p) ⟧₀⁻¹⟧₀ = recTrunc _ (∣_∣ ∘ lem) identify p where
+  lem : T == El n → ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X
   lem (refl _) = p₁ (finite-types-is-univ _ _) (path-to-eqv (size-el n))
 
 sound₀ : (T : U) → Σ M (λ X → ⟦ X ⟧₀⁻¹ ⟷ T)
