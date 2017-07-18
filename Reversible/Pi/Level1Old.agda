@@ -20,7 +20,7 @@ open import Reversible.Pi.Syntax
 open import Reversible.Pi.Level0Old
 
 open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
-open UnivalentUniverseOfFiniteTypes using (El)
+open UnivalentUniverseOfFiniteTypes using (El; finite-types-is-univ)
 
 module _ {ℓ} {ℓ'} {ℓ''} {A : Type ℓ} {P : A → Type ℓ'} {Q : Σ A P → Type ℓ''} {x y : A} {uz : Σ (P x) (λ u → Q (x , u))} where
   tpt-dpair : (p : x == y) → tpt (λ x → Σ (P x) (λ u → Q (x , u))) p uz == (tpt P p (p₁ uz) , tpt Q (dpair= (p , refl (tpt P p (p₁ uz)))) (p₂ uz))
@@ -56,7 +56,6 @@ normalizeC (TIMES t₀ t₁) =
 #⟦ TIMES t₁ t₂ ⟧₀ = #⟦ t₁ ⟧₀ × #⟦ t₂ ⟧₀
 
 #⟦_⟧₁ : {X Y : U} → X ⟷ Y → #⟦ X ⟧₀ ≃ #⟦ Y ⟧₀
-#⟦ id⟷ ⟧₁ = ide _
 #⟦ unite₊l ⟧₁ = (λ { (i₁ ()); (i₂ x) → x }) ,
   qinv-is-equiv (i₂ , (λ { (i₁ ()); x@(i₂ _) → refl x }) , refl)
 #⟦ swap₊ ⟧₁ = (λ { (i₁ x) → i₂ x; (i₂ x) → i₁ x }) ,
@@ -109,15 +108,24 @@ size= : {X Y : U} → X ⟷ Y → size X == size Y
 size= = {!!}
 
 ⟦_⟧₁ : {X Y : U} → X ⟷ Y → ⟦ X ⟧₀ == ⟦ Y ⟧₀
-⟦_⟧₁ {X} {Y} c =
-  let p = ua (tpt (_≃_ #⟦ Y ⟧₀) (size-el _) #⟦ normalizeC _ ⟧₁ ● #⟦ c ⟧₁ ● !e (tpt (_≃_ #⟦ X ⟧₀) (size-el _) #⟦ normalizeC _ ⟧₁)) in
-  dpair= (p , dpair= (ap p₁ (tpt-dpair p) ◾ tpt-const p ◾ size= c , identify _ _))
+⟦_⟧₁ {X} {Y} c = {!!}
+  --let p = ua (tpt (_≃_ #⟦ Y ⟧₀) (size-el _) #⟦ normalizeC _ ⟧₁ ● #⟦ c ⟧₁ ● !e (tpt (_≃_ #⟦ X ⟧₀) (size-el _) #⟦ normalizeC _ ⟧₁)) in
+  --dpair= (p , dpair= (ap p₁ (tpt-dpair p) ◾ tpt-const p ◾ size= c , identify _ _))
 
+{-
 ⟦_⟧₁⁻¹ : {X Y : M} → X == Y → ⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹
-⟦ refl _ ⟧₁⁻¹ = id⟷
+⟦_⟧₁⁻¹ {_ , _ , c₁} {_ , _ , c₂} p =
+  recTrunc _ (λ c₁ →
+  recTrunc _ (λ c₂ →
+    ∣ ==-to-⟷ (! c₁ ◾ dpair=-e₁ p ◾ c₂) ∣
+  ) identify c₂) identify c₁
+-}
 
+{-
 ⟦⟦_⟧₁⁻¹⟧₁ : {X Y : M} (p : X == Y) → recTrunc _ (λ p1 → recTrunc _  (λ p2 → ∥ tpt (_==_ X) p2 (tpt (λ x → x == ⟦ ⟦ Y ⟧₀⁻¹ ⟧₀) p1 ⟦ ⟦ p ⟧₁⁻¹ ⟧₁) == p ∥) {!!} ⟦⟦ Y ⟧₀⁻¹⟧₀) {!!} ⟦⟦ X ⟧₀⁻¹⟧₀
 ⟦⟦ p ⟧₁⁻¹⟧₁ = {!!}
+
+-}
 
 {-
 cmpl₁ : {X Y : M} (p : X == Y) → Σ (⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹) (λ c → ∥ ⟦ c ⟧₁ == {!!} ∥)

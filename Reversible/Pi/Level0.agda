@@ -30,9 +30,6 @@ size ONE  = 1
 size (PLUS  t₁ t₂) = add (size t₁) (size t₂)
 size (TIMES t₁ t₂) = mult (size t₁) (size t₂)
 
-fromSize : ℕ → U
-fromSize = recℕ U ZERO (λ _ → PLUS ONE)
-
 canonicalU : U → U
 canonicalU = fromSize ∘ size
 
@@ -113,6 +110,9 @@ size-el = indℕ _ (refl 𝟘) (λ _ → ap (_+_ 𝟙))
 ⟦_⟧₀⁻¹ : M → U
 ⟦ _ , n , _ ⟧₀⁻¹ = fromSize n
 
+-- This is risky: the only reason we are able to explicitly give
+-- normalizeC as a path is because we know that the image of the translation
+-- in the model has truncated paths of the form ∣ ua #⟦ normalizeC ... ⟧₁ ∣ 
 ⟦⟦_⟧₀⟧₀⁻¹ : (T : U) → ⟦ ⟦ T ⟧₀ ⟧₀⁻¹ ⟷ T
 ⟦⟦ T ⟧₀⟧₀⁻¹ = ! (normalizeC T)
 

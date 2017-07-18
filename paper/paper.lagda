@@ -36,7 +36,7 @@
 
 
 \begin{abstract}
-$\Pi$ is a reversible programming language by Sabry et al. inspired by isomorphisms over finite types in type theory. We give a model for $\Pi$ in a univalent universe of finite types: a chosen sub-universe in homotopy type theory that is a univalent fibration. Using properties of univalent fibrations, we give formal proofs in Agda that level 0 terms (types) and level one terms (isomorphisms) in $\Pi$ are complete with respect to this model. We also discuss a formalization of completeness for level two terms (coherence between isomorphisms).
+$\Pi$ is a reversible programming language by Sabry et al. inspired by isomorphisms over finite types in type theory. We give a model for $\Pi$ in a univalent universe of finite types in homotopy type theory. Using properties of \emph{univalent fibrations}, the underlying concept of this model, we give formal proofs in Agda that level zero terms (types) and level one terms (isomorphisms) in $\Pi$ are complete with respect to this model. We also discuss a formalization of completeness for level two terms (coherence between isomorphisms) and the novelty of homotopy type theory in general.
 \end{abstract}
 
 \tableofcontents
@@ -51,78 +51,78 @@ While Janus is designed for imperative programming, there has not yet been such 
 
 \subsection{Type Theory}
 
-A type theory is a formal system for \emph{types}, \emph{terms}, and their computational interactions. A helpful analogy to understand type theory at first is to conceptualize types as sets and terms as their elements. Like set theory, type theories have rules governing \emph{type formation} as there are axioms about set construction e.g. the axiom of pairing, but this is where the analogy breaks down. Whereas set theory has an internal membership predicate (i.e. set membership is a proposition), type theories have a notion of membership external to the system via \emph{typing judgments}: given a type $A$ and a term $a$, one may derive the judgment $a : A$ (pronounced ``$a$ inhabits $A$'') via \emph{term introduction} and \emph{elimination} rules. However, such judgments do not exist as statements within the language itself.
+A type theory is a formal system for \emph{types}, \emph{terms}, and their computational interactions. A helpful analogy to understand type theory at first is to conceptualize types as sets and terms as their elements. Like set theory, type theories have rules governing \emph{type formation} as there are axioms about set construction e.g. the axiom of pairing, but this is where the analogy breaks down. Whereas set theory makes set membership a proposition provable within the system, type theories have a notion of membership external to the language via \emph{typing judgments}: given a type $A$ and a term $a$, one may derive the judgment $a : A$ (pronounced ``$a$ inhabits $A$'') via \emph{term introduction} and \emph{elimination} rules. As a result, terms are also called \emph{inhabitants}, and we will use those terms interchangeably throughout the rest of the paper.
 
-Perhaps the distinguishing feature of type theories are their explicit treatment of computation: computation rules dictate how terms evaluate to normal forms. To programming language theorists, type theories formally describe programming languages and computation rules are precisely the structured operational semantics. On the other hand, set theories have no such equivalent concept.
+Perhaps the distinguishing feature of type theories are their explicit treatment of computation: computation rules dictate how terms reduce to values. To programming language theorists, type theories formally describe programming languages and computation rules are precisely the structured operational semantics. On the other hand, set theories have no such equivalent concept.
 
-This emphasis on computation has several applications to computer science. First, the type systems of such programming languages as Haskell are based on certain type theories (specifically, System F). Aside from their utility in programming language design, sufficiently sophisticated type theories are suitable as alternative foundations of mathematics to set theory. In fact, Martin-L\"of type theory (MLTT) is the basis of many programs aiming to formalize constructive mathematics. To understand how this is possible, recall that set theories consist of rules governing the behavior of sets as well as an underlying logic to express propositions and their truth. Thus, it remains to show that type theories, under the availiblity of certain type formers, may encode propositions as types and act as deductive systems in their own right.
+This emphasis on computation has several applications to computer science. First, the type systems of such programming languages as Haskell are based on certain type theories (specifically, System F). Aside from their utility in programming language design, sufficiently sophisticated type theories are suitable as alternative foundations of mathematics to set theory. In fact, Martin-L\"of type theory (MLTT) is the basis of many programs aiming to formalize constructive mathematics. To understand how this is possible, recall that set theories consist of rules governing the behavior of sets as well as an underlying logic to express propositions and their truth. Thus, it remains to show that type theories, under the availiblity of certain type formers, are languages that can express the construction of arbitrary mathematical objects as well as encode propositions as types and act as deductive systems in their own right.
 
-Thus, we will first give a brief introduction to MLTT and then \emph{homotopy type theory} (HoTT), which extends MLTT with new rules motivated by homotopy theory.
+Thus, we will first give a brief introduction to MLTT in Agda, a proof assistant.
 
 \subsection{Martin-L\"of Type Theory}
-MLTT is designed to be a foundations of constructive mathematics. First, we will describe the primitive types of this system, the various type formers, and 
+The basic type formers of MLTT directly correspond to sets:
 
-\begin{definition}[Universes]
-A$U₁$
+\begin{center}
+\begin{tabular}{ c|c } 
+ \hline
+ type & set \\
+ \hline
+ $U$ & universal set\\
+ $\mathbb{0}$ & $\emptyset$\\
+ $\mathbb{1}$ & singleton\\
+ $A + B$ & coproduct $A\sqcup B$\\
+ $A\times B$ & $A\times B$\\
+ $A\to B$ & function space $B^A$
+\end{tabular}
+\end{center}
+
+INSERT EXAMPLES USING ALL TYPES HERE
+
+MLTT then introduces \emph{dependent types}, which generalize the function and the Cartesian product types.
+
+\begin{definition}[Dependent types]
+Let $A$ be a type and $P:A\to U$ be a type family. The \emph{dependent function} type \texttt{(a : A) → P a} is inhabited by functions $f$ where if $a : A$, then $f(a):P(a)$ i.e. functions whose codomain type varies with their input.
+
+Similarly, the \emph{dependent pair} type $\sum_{a : A}P(a)$ is inhabited by $(a, b)$ where $a : A$ and $b : P(a)$ i.e. pairs where the type of the second component varies with the first component.
 \end{definition}
 
-\begin{definition}[Finite types]
-$\mathbb{0}$ is the type with no inhabitants, and $\mathbb{1}$ is the type with exactly one canonical inhabitant: $\ast$.
-
-$ind_+ : 𝟘 → $
-\end{definition}
-
-\begin{definition}[Dependent function]
-The dependent function type is inhabited by functions whose codomains vary with their inputs: given $a : A$. \AgdaDatatype{(a : A) → P a}
-\end{definition}
-
-
-
-A special case of the dependent function type is the function type $A\to B$ defined as $\prod_{a}$. That is, the codomain does not vary with inputs from the domain.
-
-\begin{definition}[Dependent pair]
-Given a type $A$ and a type family $P:A\to U$, the dependent pair type $\sum_{a:A} P(a)$ has inhabitants $(a, b)$ where $a : A$ and $b : P(a)$. Furthermore, there are projection functions $\pi_1$ and $\pi_2$ such that $\pi_1(a , b) = a$ and $\pi_2(a , b) = b$.
-\end{definition}
-
-\begin{definition}[Cartesian product]
-Given types $A$ and $B$:
-
-$$A\times B=\sum_{a:A}\abst{\_}{B}$$
-
-That is, terms of this type are simply pairs $(a, b)$ where $a : A$ and $b : B$ with the usual projection functions.
-\end{definition}
-
-\begin{definition}[Coproduct]
-Given types $A$ and $B$, their coproduct $A + B$ is characterized by the following rules:
-\begin{itemize}
-\item If $a : A$, then $\inl(a) : A + B$
-\item If $b : B$, then $\inr(b) : A + B$
-\end{itemize}
-
-
-\end{definition}
-
-The cartesian product and coproduct types should be familiar due to their obvious correspondence to set theory. However, the \emph{propositions-as-types} principle gives a clear logical perspective on the dependent function and pair types.
+The utility of these type formers is elucidated in the following explanation: while we now have a calculus to express arbitrary mathematical objects, we still lack a deductive system to perform mathematical reasoning. However, due to the \emph{propositions-as-types} principle, these together with the basic types give rise to a logic for constructive mathematics.
 
 \begin{definition}[Propositions-as-types]
-Propositions can be encoded as types. If $A$ is such a type, and $a : A$, then $a$ is a proof. The exact correspondence is given below.
+Propositions can be encoded as types. If $A$ is such a type, and $a : A$, then $a$ is a constructive proof of the proposition corresponding to $A$. The exact correspondence is given below.
 
 \begin{center}
 \begin{tabular}{ c|c } 
  \hline
  type & proposition \\
  \hline
- $\mathbb{0}$ & 
- $\prod_{a:A}P(a)$ & $\forall_{a:A}P(a)$\\
- $\sum_{a:A}P(a)$ & $\exists_{a:A}P(a)$
+ $\mathbb{0}$ & \bot\\
+ type family $P$ & predicate\\
+ $A + B$ & $A\lor B$\\
+ $A\times B$ & $A\land B$\\
+ $A\to B$ & $A\implies B$\\
+ $\prod_{a:A}P(a)$ & $\forall_{a\in A}P(a)$\\
+ $\sum_{a:A}P(a)$ & $\exists_{a\in A}P(a)$
 \end{tabular}
 \end{center}
+
+The intuition behind this principle comes from the Brouwer-Heyting-Kolmogorov interpretation of constructive logic, in which constructive proofs are computable objects. For example, a proof of the disjunction $A\lor B$ is either a proof of $A$ given by $i_1(\ldots)$ or a proof of $B$ given by $i_2(\ldots)$. Furthermore, a proof of a universally quantified formula is a computable function that sends an input to evidence that a particular predicate holds on that input.
 \end{definition}
 
-This principle gives us a deductive system for constructive logic, in the sense that proofs compute the truth of a proposition. For example, a proof of a universally quantified formula is a computable function that sends an input to evidence that a particular predicate holds on that input. Similarly, a proof of an existentially quantified formula is exactly one term paired with evidence that a predicate holds on that term, and so on. 
+INSERT EXAMPLES USING DEPENDENT PROD \& SUM TYPE HERE
+
+The identification of types and propositions mean that proofs are themselves . This is known as \emph{proof-relevant mathematics}, 
 
 \subsection{Homotopy Type Theory}
-Homotopy type theory
+Our exposition of MLTT lacks a type that expresses \emoh{propositional equality}.
+
+\begin{definition}[Identity type]
+For all types $A$ and $a , b : A$, the \emph{identity type} $a = b$ is inhabited by proofs that $a$ and $b$ are equal, called \emph{identifications}.
+
+By definition, its only canonical inhabitant is reflexivity: $\refl{a}:a = a$.
+\end{definition}
+
+Writing functions that pattern match on inhabitants of the identity type is precisely the mystery of homotopy type theory and other excursions into intensional and extensional type theory. For our purposes, we
 
 \begin{definition}[PathFrom]
 $$PathFrom(x)\triangleq\sum_{y:A}x=y$$
@@ -191,7 +191,30 @@ For a type $A$, its propositional truncation $\shortparallel A\shortparallel$ is
 By $\textsf{identify}$, the propositional truncation of any type is a proposition, hence the name. Truncation ``forgets'' all the information of terms in a type other than inhabitance, 
 \end{definition}
 
+\section{Pi}
+
+\section{Univalent Universe of Finite Types}
+
 \subsection{Univalent Fibrations}
+
+An elementary result in homotopy theory is that a path between points $x$ and $y$ in the base space of a fibration induces an equivalence between the fibers over $x$ and $y$. By univalence, this equivalence is a path as well. We formalize this result below.
+
+\begin{theorem}[\textsf{transporteqv}]
+For all types $A$ and type families $P : A → U$, given $x, y : A$, there exists a term $\textsf{transporteqv}:\prod_{P:A\to U}x=y\to P(x)≃P(y)$ defined as:
+$$\abst{P}{\abst{p}{J((\abst{b}{P(x)≃P(\pi_1(b))}), ide(P(x)), (y, p))}}$$
+\end{theorem}
+
+However, asking whether the converse is true gives the following definition.
+
+\begin{definition}[Univalence]
+For all types $A$, a type family $P : A → U$ is a \emph{univalent fibration} if $\textsf{transporteqv}(P)$ is an equivalence.
+\end{definition}
+
+That is, univalent fibrations come with a quasi-inverse of \textsf{transporteqv} that converts fiberwise paths to paths in the base space. Even though it is rarely the case that any given type family is a univalent fibration, the following theorem characterizes a class of families that are.
+
+\begin{theorem}[Christensen, Rose]
+Let $A$ be a type and $P:A\to U$ be a type family. If for all $x : A$, $P(x)$ is a mere proposition, then $P$ is a univalent fibration.
+\end{theorem}
 
 
 \end{document}

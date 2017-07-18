@@ -2,19 +2,24 @@
 
 module Reversible.Pi.Level1 where
 
-open import Paths using (_==_; refl; !; _◾_; tpt)
+open import Paths using (_==_; refl; _◾_; tpt)
 
-open import DependentSum using (Σ; _,_; p₁)
-open import PathsInSigma using (dpair=-e₁)
+open import Type using (Type; lsuc; lzero)
+open import One
+open import DependentSum using (Σ; _,_; p₁; p₂)
+open import PathsInSigma using (dpair=-e₁; dpair=)
 
-open import Equivalences using (_≃_; path-to-eqv)
+open import Equivalences using (_≃_; path-to-eqv; tpt-eqv; qinv-is-equiv)
 open import Univalence using (ua)
 open import PropositionalTruncation using (∥_∥; ∣_∣; recTrunc; identify)
 
+open import OneTypes using (is-prop;prop; prop-is-set)
+
 open import NaturalNumbers using (ℕ)
 
-open import Reversible.Pi.Syntax hiding (!)
+open import Reversible.Pi.Syntax
 open import Reversible.Pi.Level0
+open import Reversible.Pi.FinUniverse
 
 open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
 open UnivalentUniverseOfFiniteTypes using (El; finite-types-is-univ)
@@ -29,16 +34,29 @@ postulate
 -- Some automorphism on the flattened versions of X and Y
 --dpair=-e₁ p
 --fromSize n1 <-> fromSize n2
+-- Don't use truncation: use all-1-paths to get a permutation, then postulate that
+-- permutations can be converted to ⟷
 ⟦_⟧₁⁻¹ : {X Y : M} → X == Y → ∥ ⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹ ∥
 ⟦_⟧₁⁻¹ {_ , _ , c₁} {_ , _ , c₂} p =
   recTrunc _ (λ c₁ →
   recTrunc _ (λ c₂ →
-    ∣ ==-to-⟷ (! c₁ ◾ dpair=-e₁ p ◾ c₂) ∣
-  ) identify c₂) identify c₁
+    ∣ ==-to-⟷ (Paths.! c₁ ◾ dpair=-e₁ p ◾ c₂) ∣
+  ) identify c₂) identify c₁ 
 
 -- ⟦ ⟦ p ⟧₁ ⟧₁⁻¹ : fromSize (size X) ⟷ fromSize (size Y)
 -- p : X ⟷ Y
-⟦⟦_⟧₁⟧₁⁻¹ : {X Y : U} (p : X ⟷ Y) → {!!} --recTrunc _ (λ x → ∣∣ x ⇔ {!!} ∣) (λ x y → {!!}) ⟦ ⟦ p ⟧₁ ⟧₁⁻¹
+--
+
+prop≃𝟙 : ∀ {ℓ} (P : Type ℓ) → P ≃ 𝟙
+prop≃𝟙 P = (λ _ → 0₁) , qinv-is-equiv ((λ x → {!!}) , {!!})
+
+l : ∀ {ℓ} → is-prop (prop ℓ)
+l (x , px) (y , py) = dpair= (ua ({!!} , {!!}) , {!!})
+
+test : (X Y : U) (c : X ⟷ Y) → {!!}
+test X Y c = recTrunc (prop lzero) (λ c' → ∥ c == (normalizeC X ◎ (c' ◎ ! (normalizeC Y))) ∥ , identify) (λ x y → dpair= ({!!} , {!!})) ⟦ ⟦ c ⟧₁ ⟧₁⁻¹
+
+⟦⟦_⟧₁⟧₁⁻¹ : {X Y : U} (c : X ⟷ Y) → recTrunc _ (λ c' → ∥ c == (normalizeC X ◎ (c' ◎ ! (normalizeC Y))) ∥) {!!} ⟦ ⟦ c ⟧₁ ⟧₁⁻¹ --recTrunc _ (λ x → ∣∣ x ⇔ {!!} ∣) (λ x y → {!!}) ⟦ ⟦ p ⟧₁ ⟧₁⁻¹
 ⟦⟦ _ ⟧₁⟧₁⁻¹ = {!!}
 
 ⟦⟦_⟧₁⁻¹⟧₁ : {X Y : M} (p : X == Y) → {!!} --∣∣ recTrunc _ (λ P → tpt (λ x → x == Y) P p) _  ⟦⟦ X ⟧₀⁻¹⟧₀ ∣∣

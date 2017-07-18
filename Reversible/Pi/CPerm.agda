@@ -1,44 +1,61 @@
 module Reversible.Pi.CPerm where
 
-open import Type using (Type₀)
+open import Type using (Type; Type₀)
+open import Level using (Lift; lift)
+open import One
 open import Paths using (_==_)
 open import Functions using (_∘_; id)
 open import Homotopies using (_∼_)
-open import DependentSum using (p₁; p₂)
+open import DependentSum using (_×_; _,_; p₁; p₂)
+open import Coproduct using (i₁; i₂)
 open import Equivalences using (_≃_)
 
-open import Data.Nat using (ℕ)
-open import Data.Fin using (Fin)
-open import Data.Vec using (Vec; allFin; tabulate; lookup)
+open import NaturalNumbers
 
-FinVec : ℕ → ℕ → Type₀
-FinVec m n = Vec (Fin m) n
+open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
+open UnivalentUniverseOfFiniteTypes using (El)
 
-1C : {n : ℕ} → FinVec n n
-1C {n} = allFin n
+pattern fzero   = i₁ 0₁
+pattern fsucc x = i₂ x
 
-_!!_ : ∀ {m} {A : Type₀} → Vec A m → Fin m → A
-v !! i = lookup i v
+Vec : ∀ {ℓ} (A : Type ℓ) (n : ℕ) → Type ℓ
+Vec A 0        = Lift 𝟙
+Vec A (succ n) = A × Vec A n
+
+tabulate : ∀ {ℓ} {A : Type ℓ} {n : ℕ} → (El n → A) → Vec A n
+tabulate {n = 0}      f = lift 0₁
+tabulate {n = succ n} f = f fzero , tabulate (f ∘ fsucc)
+
+lookup : ∀ {ℓ} {A : Type ℓ} {n : ℕ} → Vec A n → El n → A
+lookup {n = 0}      _        ()
+lookup {n = succ n} (x , xs) fzero     = x
+lookup {n = succ n} (x , xs) (fsucc i) = lookup xs i
+
+ElVec : ℕ → ℕ → Type₀
+ElVec m n = Vec (El m) n
+
+1C : {n : ℕ} → ElVec n n
+1C {n} = tabulate id
 
 infixr 80 _∘̂_
-_∘̂_ : {n₀ n₁ n₂ : ℕ} → Vec (Fin n₁) n₀ → Vec (Fin n₂) n₁ → Vec (Fin n₂) n₀
-π₁ ∘̂ π₂ = tabulate (_!!_ π₂ ∘ _!!_ π₁)
+_∘̂_ : {n₀ n₁ n₂ : ℕ} → ElVec n₁ n₀ → ElVec n₂ n₁ → ElVec n₂ n₀
+π₁ ∘̂ π₂ = tabulate (lookup π₂ ∘ lookup π₁)
 
 record CPerm (values : ℕ) (size : ℕ) : Set where
   constructor cp
   field
-    π  : FinVec values size
-    πᵒ : FinVec size values
+    π  : ElVec values size
+    πᵒ : ElVec size values
     αp : π ∘̂ πᵒ == 1C
     βp : πᵒ ∘̂ π == 1C
 
 postulate
-  perm-equiv : {m n : ℕ} → CPerm m n ≃ (Fin m ≃ Fin n)
+  perm-equiv : {m n : ℕ} → CPerm m n ≃ (El m ≃ El n)
 
-perm-to-equiv : {m n : ℕ} → CPerm m n → Fin m ≃ Fin n
+perm-to-equiv : {m n : ℕ} → CPerm m n → El m ≃ El n
 perm-to-equiv = p₁ perm-equiv
 
-equiv-to-perm : {m n : ℕ} → Fin m ≃ Fin n → CPerm m n
+equiv-to-perm : {m n : ℕ} → El m ≃ El n → CPerm m n
 equiv-to-perm = p₁ (p₂ perm-equiv)
 
 ε : {m n : ℕ} → equiv-to-perm {m} {n} ∘ perm-to-equiv ∼ id

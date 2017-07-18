@@ -1,10 +1,15 @@
 module Reversible.Pi.Syntax where
 
+open import NaturalNumbers using (ℕ; recℕ)
+
 data U : Set where
   ZERO  : U
   ONE   : U
   PLUS  : U → U → U
   TIMES : U → U → U
+
+fromSize : ℕ → U
+fromSize = recℕ U ZERO (λ _ → PLUS ONE)
 
 data _⟷_ : U → U → Set where
   unite₊l : {t : U} → PLUS ZERO t ⟷ t
