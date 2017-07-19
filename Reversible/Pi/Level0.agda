@@ -21,6 +21,34 @@ open UnivalentUniverseOfFiniteTypes
 
 open import Reversible.Pi.Syntax
 
+{-
+
+In the model, we have triples: a type T, a size n , and some proof-irrelevant evidence that the size of T is n (specifically, T is equivalent to a flat type of size n)
+
+From U to M:
+  We have a structured type A which we map to
+  (the denotation of A, the size of A, the truncation of the path from A to its flat form via normalize)
+
+From M to U:
+  The only thing we can examine is the size component, so we simply produce fromSize n
+
+U->M->U: we're guaranteed by normalizeC that the flat type and the original are equivalent
+
+M->U->M: 
+try to make a path between
+(X, m, |p|) -> A_m -> (⟦A_m⟧, m, |q|)
+Can't do it between X and A_m, but we can do it from |p| to |q|
+X = El m = Am \to X = Am, by size-el n
+
+
+Level 1
+Pi to M: From A <-> B, translate to A \eq B, which induces a path on the triple
+M to Pi: Have some path between triples (X, n, |p|) and (Y, m, |q|). By dpair=-e\_1, X == Y.
+By induction on |p| and |q|, we get a path El m == El n, which from classical math can be converted to a combinator.
+
+ 
+-}
+
 M : Type₁
 M = Σ Type₀ is-finite
 

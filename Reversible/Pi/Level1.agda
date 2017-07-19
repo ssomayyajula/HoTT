@@ -19,7 +19,7 @@ open import NaturalNumbers using (ℕ)
 
 open import Reversible.Pi.Syntax
 open import Reversible.Pi.Level0
-open import Reversible.Pi.FinUniverse
+--open import Reversible.Pi.FinUniverse
 
 open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
 open UnivalentUniverseOfFiniteTypes using (El; finite-types-is-univ)
@@ -47,16 +47,13 @@ postulate
 -- p : X ⟷ Y
 --
 
-prop≃𝟙 : ∀ {ℓ} (P : Type ℓ) → P ≃ 𝟙
-prop≃𝟙 P = (λ _ → 0₁) , qinv-is-equiv ((λ x → {!!}) , {!!})
+canonicalC : {A B : U} → (c : A ⟷ B) → ⟦ ⟦ A ⟧₀ ⟧₀⁻¹ ⟷ ⟦ ⟦ B ⟧₀ ⟧₀⁻¹
+canonicalC {A} {B} c = ! (normalizeC A) ◎ (c ◎ normalizeC B )
 
-l : ∀ {ℓ} → is-prop (prop ℓ)
-l (x , px) (y , py) = dpair= (ua ({!!} , {!!}) , {!!})
+R : {A B : U} → (c : A ⟷ B) (tc' : ∥ A ⟷ B ∥) → Set
+R c tc' = {!!}
 
-test : (X Y : U) (c : X ⟷ Y) → {!!}
-test X Y c = recTrunc (prop lzero) (λ c' → ∥ c == (normalizeC X ◎ (c' ◎ ! (normalizeC Y))) ∥ , identify) (λ x y → dpair= ({!!} , {!!})) ⟦ ⟦ c ⟧₁ ⟧₁⁻¹
-
-⟦⟦_⟧₁⟧₁⁻¹ : {X Y : U} (c : X ⟷ Y) → recTrunc _ (λ c' → ∥ c == (normalizeC X ◎ (c' ◎ ! (normalizeC Y))) ∥) {!!} ⟦ ⟦ c ⟧₁ ⟧₁⁻¹ --recTrunc _ (λ x → ∣∣ x ⇔ {!!} ∣) (λ x y → {!!}) ⟦ ⟦ p ⟧₁ ⟧₁⁻¹
+⟦⟦_⟧₁⟧₁⁻¹ : {X Y : U} (c : X ⟷ Y) → R (canonicalC c) (⟦ ⟦ c ⟧₁ ⟧₁⁻¹)
 ⟦⟦ _ ⟧₁⟧₁⁻¹ = {!!}
 
 ⟦⟦_⟧₁⁻¹⟧₁ : {X Y : M} (p : X == Y) → {!!} --∣∣ recTrunc _ (λ P → tpt (λ x → x == Y) P p) _  ⟦⟦ X ⟧₀⁻¹⟧₀ ∣∣
