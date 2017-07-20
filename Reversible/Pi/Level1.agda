@@ -2,40 +2,43 @@
 
 module Reversible.Pi.Level1 where
 
-open import Paths using (_==_; refl; _◾_; tpt)
+open import Type using (Type)
 
-open import Type using (Type; lsuc; lzero)
-open import One
+open import Paths using (_==_; refl; _◾_; ap; tpt)
+
 open import DependentSum using (Σ; _,_; p₁; p₂)
-open import PathsInSigma using (dpair=-e₁; dpair=)
-
-open import Equivalences using (_≃_; path-to-eqv; tpt-eqv; qinv-is-equiv)
-open import Univalence using (ua)
-open import PropositionalTruncation using (∥_∥; ∣_∣; recTrunc; identify)
-
-open import OneTypes using (is-prop;prop; prop-is-set)
+open import PathsInSigma using (dpair=; dpair=-e₁; dpair=-η; dpair=-e)
 
 open import NaturalNumbers using (ℕ)
 
-open import Reversible.Pi.Syntax
-open import Reversible.Pi.Level0
---open import Reversible.Pi.FinUniverse
+open import Equivalences using (_≃_; path-to-eqv; is-retraction; tpt-id-is-equiv)
+open import PropositionalTruncation using (∥_∥; ∣_∣; recTrunc; identify)
+
+open import Functions using (id)
+open import Univalence using (ua)
 
 open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
 open UnivalentUniverseOfFiniteTypes using (El; finite-types-is-univ)
+--open IsFiniteIsProp using (is-finite-is-prop)
+
+open import Reversible.Pi.Syntax
+open import Reversible.Pi.Level0
 
 ⟦_⟧₁ : {X Y : U} → X ⟷ Y → ⟦ X ⟧₀ == ⟦ Y ⟧₀
 ⟦ c ⟧₁ = p₁ (finite-types-is-univ _ _) #⟦ c ⟧₁
 
 -- A classical result, sort of
+-- Robert proved init-seg = CPerm
 postulate
   ==-to-⟷ : {m n : ℕ} → El m == El n → fromSize m ⟷ fromSize n
+  perm-equiv : {X Y : U} → is-retraction (#⟦_⟧₁ {X} {Y})
 
--- Some automorphism on the flattened versions of X and Y
---dpair=-e₁ p
---fromSize n1 <-> fromSize n2
--- Don't use truncation: use all-1-paths to get a permutation, then postulate that
--- permutations can be converted to ⟷
+#⟦_⟧₁⁻¹ : {X Y : U} → #⟦ X ⟧₀ ≃ #⟦ Y ⟧₀ → X ⟷ Y
+#⟦_⟧₁⁻¹ = p₁ perm-equiv
+
+--⟦_⟧₁⁻¹ : {X Y : M} → X == Y → ⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹
+--⟦ refl _ ⟧₁⁻¹ = id⟷
+
 ⟦_⟧₁⁻¹ : {X Y : M} → X == Y → ∥ ⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹ ∥
 ⟦_⟧₁⁻¹ {_ , _ , c₁} {_ , _ , c₂} p =
   recTrunc _ (λ c₁ →
@@ -43,21 +46,38 @@ postulate
     ∣ ==-to-⟷ (Paths.! c₁ ◾ dpair=-e₁ p ◾ c₂) ∣
   ) identify c₂) identify c₁ 
 
--- ⟦ ⟦ p ⟧₁ ⟧₁⁻¹ : fromSize (size X) ⟷ fromSize (size Y)
--- p : X ⟷ Y
---
+⟦_⟧₁⁻¹' : {X Y : U} → ⟦ X ⟧₀ == ⟦ Y ⟧₀ → X ⟷ Y
+⟦ p ⟧₁⁻¹' = #⟦ path-to-eqv (dpair=-e₁ p) ⟧₁⁻¹
 
-canonicalC : {A B : U} → (c : A ⟷ B) → ⟦ ⟦ A ⟧₀ ⟧₀⁻¹ ⟷ ⟦ ⟦ B ⟧₀ ⟧₀⁻¹
-canonicalC {A} {B} c = ! (normalizeC A) ◎ (c ◎ normalizeC B )
+-- Need a level 2 analogue of normalizeC, which creates a coherence betwee
+⟦⟦_⟧₁⟧₁⁻¹' : {X Y : U} (c : X ⟷ Y) → ⟦ ⟦ c ⟧₁ ⟧₁⁻¹' ⇔ c
+⟦⟦ c ⟧₁⟧₁⁻¹' = {!!}
 
-R : {A B : U} → (c : A ⟷ B) (tc' : ∥ A ⟷ B ∥) → Set
-R c tc' = {!!}
+⟦⟦_⟧₁⁻¹'⟧₁ : {X Y : U} (p : ⟦ X ⟧₀ == ⟦ Y ⟧₀) → ⟦ ⟦ p ⟧₁⁻¹' ⟧₁ == p
+⟦⟦_⟧₁⁻¹'⟧₁ {X} {Y} p = {!!} where
+  lem : ua #⟦ #⟦ (tpt id (ap p₁ p) , tpt-id-is-equiv (ap p₁ p)) ⟧₁⁻¹ ⟧₁ == {!!}
+  lem = ap ua (p₂ perm-equiv _) ◾ {!!}
 
-⟦⟦_⟧₁⟧₁⁻¹ : {X Y : U} (c : X ⟷ Y) → R (canonicalC c) (⟦ ⟦ c ⟧₁ ⟧₁⁻¹)
-⟦⟦ _ ⟧₁⟧₁⁻¹ = {!!}
+cmpl₁ : {X Y : U} (p : ⟦ X ⟧₀ == ⟦ Y ⟧₀) → Σ (X ⟷ Y) (λ c → ⟦ c ⟧₁ == p)
+cmpl₁ p = ⟦ p ⟧₁⁻¹' , ⟦⟦ p ⟧₁⁻¹'⟧₁
 
-⟦⟦_⟧₁⁻¹⟧₁ : {X Y : M} (p : X == Y) → {!!} --∣∣ recTrunc _ (λ P → tpt (λ x → x == Y) P p) _  ⟦⟦ X ⟧₀⁻¹⟧₀ ∣∣
-⟦⟦ refl _ ⟧₁⁻¹⟧₁ = {!!}
+sound₁ : {X Y : U} (c : X ⟷ Y) → Σ (⟦ X ⟧₀ == ⟦ Y ⟧₀) (λ p → ⟦ p ⟧₁⁻¹' ⇔ c)
+sound₁ c = ⟦ c ⟧₁ , ⟦⟦ c ⟧₁⟧₁⁻¹'
 
---cmpl₁ : {X Y : M} (p : X == Y) → Σ (⟦ X ⟧₀⁻¹ ⟷ ⟦ Y ⟧₀⁻¹) (λ c → ∥ ⟦ c ⟧₁ == {!!} ∥)
---cmpl₁ p = ⟦ p ⟧₁⁻¹ , {!!} --⟦⟦ p ⟧₁⁻¹⟧₁
+-- Easy but tedious
+⟦_⟧₂ : {X Y : U} {p q : X ⟷ Y} → p ⇔ q → ⟦ p ⟧₁ == ⟦ q ⟧₁
+⟦ c ⟧₂ = {!!}
+
+-- Not so easy, we run into the same conundrum as before
+-- We could return the id coherence, but that's incorrect.
+⟦_⟧₂⁻¹ : {X Y : U} {p q : ⟦ X ⟧₀ == ⟦ Y ⟧₀} → p == q → ⟦ p ⟧₁⁻¹' ⇔ ⟦ q ⟧₁⁻¹'
+⟦ refl _ ⟧₂⁻¹ = {!!}
+
+--cmpl₂ : {X Y : U} {p q : ⟦ X ⟧₀ == ⟦ Y ⟧₀} (r : p == q) → Σ (⟦ p ⟧₁⁻¹' ⇔ ⟦ q ⟧₁⁻¹') (λ c → ⟦ c ⟧₂ == r)
+--cmpl₂ p = {!!}
+
+{-⟦_⟧₃ : {X Y : U} {p q : X ⟷ Y} {r s : p ⇔ q} → r ⇌ s → ⟦ r ⟧₂ == ⟦ s ⟧₂
+⟦ trunc ⟧₃ = {!!}
+
+⟦_⟧₃⁻¹ : {X Y : U} {p q : ⟦ X ⟧₀ == ⟦ Y ⟧₀} {r s : p == q} → r == s → ⟦ r ⟧₂⁻¹ ⇌ ⟦ s ⟧₂⁻¹
+⟦ c ⟧₃⁻¹ = trunc-}

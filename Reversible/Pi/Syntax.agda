@@ -55,6 +55,9 @@ assocr₊ = ! assocl₊
 
 data _⇔_ : {X Y : U} → X ⟷ Y → X ⟷ Y → Set where
 
+data _⇌_ {X Y : U} {p q : X ⟷ Y} (u v : p ⇔ q) : Set where
+  trunc : u ⇌ v
+
 {-postulate
   _⊕_ : {t₁ t₂ t₃ t₄ : U} → (t₁ ⟷ t₃) → (t₂ ⟷ t₄) → (PLUS t₁ t₂ ⟷ PLUS t₃ t₄)
   _⊗_ : {t₁ t₂ t₃ t₄ : U} → (t₁ ⟷ t₃) → (t₂ ⟷ t₄) → (TIMES t₁ t₂ ⟷ TIMES t₃ t₄)
