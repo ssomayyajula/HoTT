@@ -11,8 +11,10 @@
 \usepackage{bbold}
 \usepackage{stmaryrd}
 \usepackage{multicol}
+\usepackage{proof}
 
 \usepackage{hyperref}
+\usepackage[nottoc]{tocbibind}
 \usepackage{agda}
 
 \setmainfont{TeX Gyre Termes}
@@ -27,13 +29,50 @@
 \newtheorem{axiom}{Axiom}[section]
 \newtheorem{conjecture}{Conjecture}[section]
 
-\newcommand{\inl}{\textsf{inl}}
-\newcommand{\inr}{\textsf{inr}}
 \newcommand{\abst}[2]{\lambda #1\to#2}
-\newcommand{\refl}{\textsf{refl}}
 \newcommand{\funext}{\textsf{funext}}
 
-\title{Completeness of $\Pi$}
+\newcommand{\linv}{l!}
+\newcommand{\rinv}{r!}
+\newcommand{\invinv}{!!}
+\newcommand{\assoc}{\circ}
+\newcommand{\identlp}{\mathit{unite}_+\mathit{l}}
+\newcommand{\identrp}{\mathit{uniti}_+\mathit{l}}
+\newcommand{\identlsp}{\mathit{unite}_+\mathit{r}}
+\newcommand{\identrsp}{\mathit{uniti}_+\mathit{r}}
+\newcommand{\swapp}{\mathit{swap}_+}
+\newcommand{\assoclp}{\mathit{assocl}_+}
+\newcommand{\assocrp}{\mathit{assocr}_+}
+\newcommand{\identlt}{\mathit{unite}_*\mathit{l}}
+\newcommand{\identrt}{\mathit{uniti}_*\mathit{l}}
+\newcommand{\identlst}{\mathit{unite}_*\mathit{r}}
+\newcommand{\identrst}{\mathit{uniti}_*\mathit{r}}
+\newcommand{\swapt}{\mathit{swap}_*}
+\newcommand{\assoclt}{\mathit{assocl}_*}
+\newcommand{\assocrt}{\mathit{assocr}_*}
+\newcommand{\absorbr}{\mathit{absorbr}}
+\newcommand{\absorbl}{\mathit{absorbl}}
+\newcommand{\factorzr}{\mathit{factorzr}}
+\newcommand{\factorzl}{\mathit{factorzl}}
+\newcommand{\dist}{\mathit{dist}}
+\newcommand{\factor}{\mathit{factor}}
+\newcommand{\distl}{\mathit{distl}}
+\newcommand{\factorl}{\mathit{factorl}}
+\newcommand{\distz}{\mathit{absorbr}}
+\newcommand{\iso}{\leftrightarrow}
+\newcommand{\proves}{\vdash}
+\newcommand{\idc}{\mathit{id}\!\!\leftrightarrow}
+
+\newcommand{\jdg}[3]{#2 \proves_{#1} #3}
+
+\newcommand{\Rule}[4]{
+\makebox{{\rm #1}
+$\displaystyle
+\frac{\begin{array}{l}#2 \\\end{array}}
+{\begin{array}{l}#3      \\\end{array}}$
+ #4}}
+
+\title{\vspace*{-2cm}Completeness of $\Pi$}
 \author{Siva Somayyajula}
 \date{July 2017}
 
@@ -50,22 +89,22 @@ $\Pi$ is a reversible programming language by Sabry et al. inspired by type-theo
 
 \subsection{Reversibility}
 
-Reversibility is the notion that computations and their effects may be reversed. This is prevalent in computing applications, giving rise to ad hoc implementations in both hardware and software alike. In particular, transactional databases operate on the basic concept that operations on data may be committed to memory or rolled back, and version control systems like \texttt{darcs} are based on \emph{patch theory}, an algebra for file changes. At the software level, this has motivated the development of general-purpose reversible programming languages---Janus, developed in 1982, is such a language with a formally verified interpreter.
+Reversibility is a paradigm in which computations and their effects may be reversed. This is prevalent in computing applications, giving rise to ad hoc implementations in both hardware and software alike. In particular, transactional databases operate on the basic concept that operations on data may be committed to memory or rolled back \cite{sabry_slides}, and version control systems like \texttt{darcs} are based on \emph{patch theory}, an algebra for file changes\cite{darcs_wiki}. At the software level, this has motivated the development of general-purpose reversible programming languages.
 
-While Janus is designed for imperative programming, there has not yet been such an effort for functional programming, whose emphasis on avoiding mutability, amongst other things, is amenable to reversibility. To elaborate, a natural type-theoretic notion of reversibility is given by type isomorphisms i.e. lossless transformations over structured data. Thus, a calculus for such isomorphisms would give rise to a reversible functional programming language. The $\Pi$ programming language introduced by Sabry et al.is precisely that. However, to understand $\Pi$ and its model, we give a brief introduction to type theory and its homotopy-theoretic interpretation.
+Instead of relying on an operational model, the $\Pi$ language by Sabry et al. begins with different foundations. To elaborate, a natural type-theoretic notion of reversibility is given by type isomorphisms i.e. lossless transformations over structured data. Thus, $\Pi$ is a calculus for such isomorphisms, giving rise to a feature-complete reversible functional programming language \cite{sabry_slides}. To understand $\Pi$ and its model, we give a brief introduction to the type theories we use to formalize them.
 
 \subsection{Type Theory}
 
-A type theory is a formal system for \emph{types}, \emph{terms}, and their computational interactions. A helpful analogy to understand type theory at first is to conceptualize types as sets and terms as their elements. Like set theory, type theories have rules governing \emph{type formation} as there are axioms about set construction e.g. the axiom of pairing, but there are important distinctions. Whereas set theory makes set membership a proposition provable within the system, terms do not exist without an a priori notion of what type they belong to---one writes $a : A$ (pronounced ``$a$ inhabits $A$'') to introduce a term $a$ of type $A$. As a result, terms are also called \emph{inhabitants}, and we will use those terms (pun intended) interchangeably throughout the rest of the paper.
+A type theory is a formal system for \emph{types}, \emph{terms}, and their computational interactions. A helpful analogy to understand type theory at first is to conceptualize types as sets and terms as their elements. Like set theory, type theories have rules governing \emph{type formation} as there are axioms about set construction e.g. the axiom of pairing, but there are important distinctions. Whereas set theory makes set membership a proposition provable within the system, terms do not exist without an a priori notion of what type they belong to---one writes $a : A$ (pronounced ``$a$ inhabits $A$'') to introduce a term $a$ of type $A$ \cite{coquand_2006}. As a result, terms are also called \emph{inhabitants}, and we will use those terms (pun intended) interchangeably throughout the rest of the paper.
 
 Perhaps the distinguishing feature of type theories are their explicit treatment of computation: computation rules dictate how terms reduce to values. To programming language theorists, type theories formally describe programming languages and computation rules are precisely the structured operational semantics. On the other hand, set theories have no such equivalent concept.
 
-This emphasis on computation has several applications to computer science. First, the type systems of such programming languages as Haskell are based on certain type theories (specifically, System F). Aside from their utility in programming language design, sufficiently sophisticated type theories are suitable as alternative foundations of mathematics to set theory. In fact, Martin-L\"of type theory (MLTT) is the basis of many programs aiming to formalize constructive mathematics. To understand how this is possible, recall that set theories consist of rules governing the behavior of sets as well as an underlying logic to express propositions and their truth. Thus, it remains to show that type theories, under the availiblity of certain type formers, are languages that can express the construction of arbitrary mathematical objects as well as encode propositions as types and act as deductive systems in their own right.
+This emphasis on computation has several applications to computer science. First, the type systems of such programming languages as Haskell are based on certain type theories (specifically, System F). Aside from their utility in programming language design, sufficiently sophisticated type theories are suitable as alternative foundations of mathematics to set theory. In fact, Martin-L\"of type theory (MLTT) is the basis of many programs aiming to formalize constructive mathematics. To understand how this is possible, recall that set theories consist of rules governing the behavior of sets as well as an underlying logic to express propositions and their truth. Thus, it remains to show that type theories, under the availability of certain type formers, are languages that can express the construction of arbitrary mathematical objects as well as encode propositions as types and act as deductive systems in their own right \cite{dybjer_palmgren_2016}.
 
 Thus, we will first give a brief introduction to MLTT in Agda, a programming language and proof assistant based on MLTT.
 
 \subsection{Martin-L\"of Type Theory}
-Continuing the analogy that types are sets, the following table describes the set-theoretic analogue of each type former in MLTT. The syntax of the terms inhabiting these types are in almost one-to-one correspondence with classical mathematics, with caveats explained below.
+Continuing the analogy that types are sets, the following table describes the set-theoretic analogue of each type former in MLTT. The syntax of the terms inhabiting these types are in almost one-to-one correspondence with classical mathematics, with caveats explained below \cite{hottbook}.
 
 \begin{center}
 \begin{tabular}{ c|c } 
@@ -137,7 +176,7 @@ Note that functions like this whose codomains are universes are called \emph{typ
 
 MLTT then introduces \emph{dependent types}, which generalize the function and Cartesian product types.
 
-\begin{definition}[Dependent types]
+\begin{definition}[Dependent types \cite{dybjer_palmgren_2016}]
 Let $A$ be a type and $P:A\to U$ be a type family. The \emph{dependent function} type $\prod_{a:A}P(a)$ is inhabited by functions $f$ where if $a : A$, then $f(a):P(a)$ i.e. functions whose codomain type varies with their input.
 
 Similarly, the \emph{dependent pair} type $\sum_{a : A}P(a)$ is inhabited by $(a, b)$ where $a : A$ and $b : P(a)$ i.e. pairs where the type of the second component varies with the first component.
@@ -145,7 +184,7 @@ Similarly, the \emph{dependent pair} type $\sum_{a : A}P(a)$ is inhabited by $(a
 
 The utility of these two type formers is elucidated in the following explanation: while we now have a calculus to express arbitrary mathematical objects, we still lack a deductive system to perform mathematical reasoning. In order to develop this, we must first introduce the \emph{Brouwer-Heyting-Kolmogorov (BHK) interpretation}, which not only captures the intuition for proofs in informal mathematics but also expresses them as computable objects.
 
-\begin{definition}[BHK interpretation]
+\begin{definition}[BHK interpretation \cite{moschovakis_1999}]
 We define a proof by induction on the structure of a logical formula.
 \begin{itemize}
 \item There is no proof of $\bot$
@@ -166,9 +205,8 @@ Then, fix a domain of discourse $D$. A proof of\ldots
 \end{itemize}
 \end{definition}
 
-The proofs described by this interpretation are in exact one-to-one correspondence with the terms inhabiting the various type formers we have just introduced, as shown below.
+The proofs described by this interpretation are in exact one-to-one correspondence with the terms inhabiting the various type formers we have just introduced, as shown below \cite{hottbook}.
 
-%\begin{figure}[H]
 \begin{center}
 \begin{tabular}{ c|c } 
  \hline
@@ -180,12 +218,11 @@ The proofs described by this interpretation are in exact one-to-one corresponden
  $A\land B$ & $A\times B$\\
  $A\implies B$ & $A\to B$\\
  $\lnot A$ & $A\to\mathbb{0}$\\
- type family & predicate\\
+ predicate & type family\\
  $\forall_{a\in A}P(a)$ & $\prod_{a:A}P(a)$\\
  $\exists_{a\in A}P(a)$ & $\sum_{a:A}P(a)$
 \end{tabular}
 \end{center}
-%\end{figure}
 
 We can make concrete the correspondence between propositions and types (and consequently proofs and terms) below.
 
@@ -228,7 +265,7 @@ This definition is quite straightforward: for any number $n$, $0\le n$, and $S(m
   succ-n≰n (succ n) = succ-n≰n n
 \end{code}
 
-For the base case, the goal $\lnot(1\leq 0)$ evaluates to $\mathbb{0}\to\mathbb{0}$. Thus, a term of this type is the identity function. For the inductive step, realize that the goal $\lnot(S(S(n))\leq S(n))$ evaluates to $\lnot(S(n)\leq n)$. By induction, $\AgdaFunction{succ-n\leq n~n}:\lnot(S(n)\leq n)$, so the proof is complete.
+For the base case, the goal $\lnot(1\leq 0)$ evaluates to $\mathbb{0}\to\mathbb{0}$. Thus, a term of this type is the identity function. For the inductive step, realize that the goal $\lnot(S(S(n))\leq S(n))$ evaluates to $\lnot(S(n)\leq n)$. By induction, $\AgdaFunction{succ-n\leq n}~n:\lnot(S(n)\leq n)$, so the proof is complete.
 
 %The main two points here are that (1) dependent functions compute the evidence of universally quantified formulas and (2) the principle of mathematical induction is computationally dual to recursion. There are other deep relationships between computation and logic due to propositions-as-types, but those are beyond the scope of this report.
 
@@ -262,19 +299,19 @@ module Ex4 where
     lemma (succ n , succ-n≰n) = lemma (n , succ-n≰n)
 \end{code}
 
-The identification of types and propositions mean that proofs are themselves mathematical objects that may be reasoned about---that is, we are doing \emph{proof-relevant mathematics}. Furthermore, the computational content of MLTT is directly accessible. Although these examples are quite tame, more complex proofs are of great utility in software engineering. For example, Euclid's proof of the existence of a greatest common factor formalized in a language like Agda is an executable algorithm which finds precisely that. The implications of proof relevance, amongst other things, have motivated the development of \emph{homotopy type theory}, the type theory underlying the results of this paper.
+The identification of types and propositions mean that proofs are themselves mathematical objects that may be reasoned about---that is, we are doing \emph{proof-relevant mathematics}. Furthermore, the computational content of MLTT is directly accessible. Although these examples are quite tame, more complex proofs are of great utility in software engineering. For example, Euclid's proof of the existence of a greatest common factor (GCF) formalized in a language like Agda is an executable algorithm which computes the GCF correctly. The implications of proof relevance, amongst other things, have motivated the development of \emph{homotopy type theory}, the type theory underlying the results of this paper.
 
 \subsection{Homotopy Type Theory}
 
-In the previous section, we gave an informal exposition of MLTT by appealing to set theory---in other words, we interpeted the various type formers as set constructors, terms as elements, and discussed their computational and logical interactions. However, we are missing a type that expresses \emph{propositional equality} i.e. propositions that two objects $a$ and $b$ are equal.
+In the previous section, we gave an informal exposition of MLTT by appealing to set theory---in other words, we interpreted the various type formers as set constructors, terms as elements, and discussed their computational and logical interactions. However, we are missing a type that expresses \emph{propositional equality} i.e. propositions that two objects $a$ and $b$ are equal.
 
-\begin{definition}[Identity type]
+\begin{definition}[Identity type \cite{hottbook}]
 For all types $A$ and $a , b : A$, the \emph{identity type} $a = b$ is inhabited by proofs that $a$ and $b$ are equal, called \emph{identifications}.
 
-By definition, the canonical method of introducing an inhabitant of this type is by reflexivity: $\refl=\prod_{a:A}a=a$.
+By definition, the canonical method of introducing an inhabitant of this type is by reflexivity: $refl=\prod_{a:A}a=a$.
 \end{definition}
 
-Structural induction upon terms of this type is not as straightforward as with the other type formers. One would expect to be able to simply reduce every encounter of the identity type to reflexivity during theorem proving, but that defies the homotopy-theoretic interpretation of type theory. When types are interpreted as spaces and terms as points, we get the following correspondence.
+Structural induction upon terms of this type is not as straightforward as with the other type formers. One would expect to be able to simply reduce every encounter of the identity type to reflexivity during theorem proving, but that defies the homotopy-theoretic interpretation of type theory due to \emph{homotopy type theory} (HoTT). When types are interpreted as spaces and terms as points, we get the following correspondence \cite{hottbook}.
 
 \begin{center}
 \begin{tabular}{ c|c } 
@@ -302,18 +339,18 @@ module Ex5 {ℓ} {A : Type ℓ} where
   J _ b (x , refl .x) = b
 \end{code}}
 
-\begin{definition}[PathFrom]
+\begin{definition}[PathFrom \cite{licata_2015}]
 $$PathFrom(x)\triangleq\sum_{y:A}x=y$$
 \end{definition}
 
 The following principle then allows us to reduce certain paths to constant loops under the exact conditions described.
 
-\begin{definition}[Paulin-Mohring's J]
-Given a type family $P:PathFrom(x)\to U$, $J:P(x, \refl{x})\to\prod_{p:PathFrom(x)}P(p)$ with the following computation rule:
-$$J(r, (x, \refl{x}))\mapsto r$$
+\begin{definition}[Paulin-Mohring's J \cite{licata_2015}]
+Given a type family $P:PathFrom(x)\to U$, $J:P(x, refl(x))\to\prod_{p:PathFrom(x)}P(p)$ with the following computation rule:
+$$J~r~(x, refl(x))\to r$$
 \end{definition}
 
-Thus, it is impossible to prove that \emph{all} inhabitants of the identity type are identical to reflexivity (see Hofmann and Streicher's groupoid model of type theory). Likewise, not every path is contractible to a constant loop. In fact, one can only prove that inhabitants of $PathFrom(x)$ are propositionally equal to $(x, \refl(x))$ since the second endpoint is left free.
+Thus, it is impossible to prove that \emph{all} inhabitants of the identity type are identical to reflexivity \cite{Hofmann96thegroupoid}. Likewise, not every path is contractible to a constant loop. In fact, one can only prove that inhabitants of $PathFrom(x)$ are propositionally equal to $(x, refl(x))$ since the second endpoint is left free.
 
 \AgdaHide{
 \begin{code}
@@ -326,9 +363,9 @@ module Ex6 {ℓ} {A : Type ℓ} {x : A} where
   PathFrom-unique = J (λ yp → yp == (x , refl x)) (refl (x , refl x))
 \end{code}
 
-As a result, this allows us to add so-called nontrivial inhabitants to the identity type via separate inference rules without rendering the system inconsistent. Motivated by the simplicial set model of type theory by Awodey et al., HoTT adds such inhabitants expressing the extensional equality of various objects. For example, given functions $f,g:A\to B$, if one has evidence $\alpha:\prod_{x:A}f(x)=g(x)$, the axiom of function extensionality gives $\funext(\alpha):f=g$. However, the crux of HoTT lies in Voevodsky's univalence axiom, which is an extensionality axiom for \emph{types}. Before we introduce it, we must first define what it means for two types to be extensionally equal.
+As a result, this allows us to add so-called nontrivial (non-reflexivity) inhabitants to the identity type via separate inference rules without rendering the system inconsistent. Motivated by the simplicial set model of type theory, HoTT adds such inhabitants expressing the extensional equality of various objects. For example, given functions $f,g:A\to B$, if one has evidence $\alpha:\prod_{x:A}f(x)=g(x)$, the axiom of function extensionality gives $\funext(\alpha):f=g$. However, the crux of HoTT lies in Voevodsky's univalence axiom, which is an extensionality axiom for \emph{types}. Before we introduce it, we must first define what it means for two types to be \emph{equivalent}, or extensionally equal.
 
-\begin{definition}[Quasi-inverse]
+\begin{definition}[Quasi-inverse \cite{hottbook}]
 A \emph{quasi-inverse} of a function $f:A\to B$ is the following dependent triple:
 \begin{itemize}
 \item $g:B\to A$
@@ -339,7 +376,7 @@ A \emph{quasi-inverse} of a function $f:A\to B$ is the following dependent tripl
 
 For the purposes of this paper, we will refer to functions that have quasi-inverses as equivalences, although there are other equivalent notions in type theory. In Agda, we must explicitly specify which type of equivalence we are providing i.e. \AgdaFunction{qinv-is-equiv} for quasi-inverses. We can now give our notion of extensionality for types.
 
-\begin{definition}[Type equivalence]
+\begin{definition}[Type equivalence \cite{hottbook}]
 Given types $X$ and $Y$, $X\simeq Y$ if there exists a function $f:X\to Y$ that is an equivalence.
 \end{definition}
 
@@ -368,33 +405,33 @@ module Ex7 {ℓ} {A B : Type ℓ} where
 \end{code}
 \end{proof}
 
-\begin{axiom}[Univalence]
+\begin{axiom}[Univalence \cite{hottbook}]
 \textsf{idtoeqv} is an equivalence.
 \end{axiom}
 
 By declaring that \textsf{idtoeqv} has a quasi-inverse, this axiom gives us the following data:
 
 \begin{itemize}
-\item $\textsf{ua}:A\simeq B\to A = B$, a function that converts equivalences to paths
-\item $\textsf{ua}\-\beta:\prod_{f:A\simeq B}\textsf{idtoeqv}(\textsf{ua}(f))=f$
-\item $\textsf{ua}\-\eta:\prod_{f:A\simeq B}\textsf{ua}(\textsf{idtoeqv}(p))=p$
+\item $ua:A\simeq B\to A = B$, a function that converts equivalences to paths
+\item $\prod_{f:A\simeq B}idtoeqv(ua(f))=f$
+\item $\prod_{p:A=B}ua(idtoeqv(p))=p$
 \end{itemize}
 
-The last two data are called \emph{propositional computation rules}, as they dictate how \textsf{ua} reduces propositionally, outside of the computation rules built into type theory. However, this raises the question: how do terms evaluate to a value in the presence of univalence? This is actually still an open question---for now, homotopy type theory lacks \emph{canonicity}, the guarantee that every term has a canonical form.
+The last two data are called \emph{propositional computation rules}, as they dictate how $ua$ reduces propositionally, outside of the computation rules built into type theory. However, this raises the question: how do terms evaluate to a value in the presence of univalence? This is actually still an open question---for now, homotopy type theory lacks \emph{canonicity}, the guarantee that every term has a canonical form.
 
 Univalence is justified when we broaden our interpretation of types to not just spaces but to \emph{homotopy types}---spaces regarded up to homotopy equivalence. In that sense, $ua$ is simply the trivial assertion that spaces that are homotopy equivalent are equal (up to homotopy equivalence).
 
 Before moving onto $\Pi$ and its model, we must establish one last concept and rethink our previous conception of propositions-as-types. Recall that we are doing proof-relevant mathematics. However, classical mathematics is decidedly proof-irrelevant since propositions are simply assigned a truth value without additional information. In terms of type theory, this would mean the terms of every type would be indistinguishable up to propositional equality. As a result, the only information we would have about a tautology encoded as a type is that it is inhabited by \emph{some} value, and an absurdity would simply be uninhabited. We formalize this intuition below.
 
-\begin{definition}[Mere proposition]
+\begin{definition}[Mere proposition \cite{hottbook}]
 A type is a \emph{mere proposition} if all of its inhabitants are propositionally equal. That is, the following type is inhabited:
 
-$$isProp(A) = \prod_{x,y:A} x == y$$
+$$isProp(A)\triangleq\prod_{x,y:A}x=y$$
 \end{definition}
 
-This allows us to formalize analogies between classical mathematics (we avoid the phrase ``classical logic'', which is related to mere propositions but not expounded here) and type theory.
+This allows us to formalize analogies between classical mathematics (we avoid the phrase ``classical logic,'' which is related to mere propositions but not expounded here) and type theory.
 
-\begin{theorem}[Logical equivalence]
+\begin{theorem}[Logical equivalence \cite{hottbook}]
 For all mere propositions $A$ and $B$, if $A\to B$ and $B\to A$, then $A\simeq B$. That is, to show that two mere propositions are equivalent, it is sufficient to show that they are logically equivalent.
 \end{theorem}
 \begin{proof}
@@ -415,14 +452,14 @@ module Biconditional {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} where
 
 For types that are not mere propositions, we may construct an analogue that is.
 
-\begin{definition}[Propositional truncation]
+\begin{definition}[Propositional truncation \cite{hottbook}]
 For a type $A$, its propositional truncation $\parallel A\parallel$ is described by the following
 \begin{itemize}
 \item If $a : A$, then $\mid a\mid:\parallel A\parallel$
-\item $\textsf{identify}:\Pi_{x,y:\parallel A\parallel} x == y$
+\item $identify:\Pi_{x,y:\parallel A\parallel} x=y$
 \end{itemize}
 
-By $\textsf{identify}$, the propositional truncation of any type is a proposition, hence the name.
+By $identify$, the propositional truncation of any type is a proposition, hence the name.
 \end{definition}
 
 Structural induction upon inhabitants of a propositional truncation is subtle---a function can only recover the original term underneath the truncation bars if its codomain itself is a mere proposition. We will see this principle show up as \AgdaFunction{recTrunc} later on.
@@ -430,6 +467,8 @@ Structural induction upon inhabitants of a propositional truncation is subtle---
 In short, mere propositions allow us to encode proof-irrelevance into type theory. This is key in defining the \emph{univalent universe of finite types}, the model of $\Pi$, which we will do in the next section.
 
 \section{Univalent Universe of Finite Types}
+
+The underlying characterization of this subuniverse relies on a concept called \emph{univalent fibrations}.
 
 \subsection{Univalent Fibrations}
 
@@ -454,13 +493,13 @@ module Ex8 {ℓ} {ℓ'} {A : Type ℓ'} {x y : A} where
 
 However, converse is not always true---type families that satisfy this property are called {univalent fibrations}.
 
-\begin{definition}[Univalent Fibration]
-For all types $A$, a type family $P : A → U$ is a \emph{univalent fibration} if $\textsf{transporteqv}(P)$ is an equivalence.
+\begin{definition}[Univalent Fibration \cite{christensen_slides}]
+For all types $A$, a type family $P : A → U$ is a \emph{univalent fibration} if $\AgdaFunction{transporteqv}(P)$ is an equivalence.
 \end{definition}
 
-That is, univalent fibrations come with a quasi-inverse of \textsf{transporteqv} that converts fiberwise paths to paths in the base space. Even though it is rarely the case that any given type family is a univalent fibration, the following theorem characterizes a class of families that are.
+That is, univalent fibrations come with a quasi-inverse of \AgdaFunction{transporteqv} that converts fiberwise equivalences to paths in the base space. Even though it is rarely the case that any given type family is a univalent fibration, the following theorem characterizes a class of families that are.
 
-\begin{theorem}[Christensen, Rose]
+\begin{theorem}[Rose, 2017]
 \label{predExtIsUniv}
 Let $P:U\to U$ be a type family. If for all $X : U$, $P(X)$ is a mere proposition, then the first projection $p_1:\sum_{X:U}P(X)\to U$ is a univalent fibration.
 \end{theorem}
@@ -495,45 +534,35 @@ To see that this definition is sufficient, we can enumerate all $n$ canonical in
 \end{tabular}
 \end{center}
 
-Notice that we never reach $i_2(i_2(\ldots(i_2(...))\ldots))$ because that would require giving an inhabitant of $\mathbb{0}$, which is impossible. Thus, we are guaranteed $n$ canonical inhabitants.
-
-%This pattern allows us to give a Peano numbers-like representation of these values via the following additions to the syntax.
-
-Now, we are ready to define the $\AgdaFunction{is-finite}$ family.
+Notice that we never reach $i_2(i_2(\ldots(i_2(...))\ldots))$ because that would require giving an inhabitant of $\mathbb{0}$, which is impossible. Thus, we are guaranteed $n$ canonical inhabitants. Now, we are ready to define the $\AgdaFunction{is-finite}$ family.
 
 \begin{code}
   is-finite : Type₀ → Type₁
   is-finite A = Σ ℕ (λ n → ∥ A == El n ∥)
 \end{code}
 
-Viewed as a predicate, this says ``a type is finite if it is equivalent to a finite type''. Computationally, we require a proof-irrelevant identification of $A$ and $\AgdaDatatype{El}~n$ for some $n$. Then, we define the univalent universe of finite types to be the subuniverse of types satisfying this predicate.
+Viewed as a predicate, this says ``a type is finite if it is equivalent to a canonical finite type.'' Computationally, we require a proof-irrelevant identification of $A$ and $\AgdaDatatype{El}~n$ for some $n$. Then, we define the univalent universe of finite types to be the subuniverse of types satisfying this predicate.
 
 \begin{code}
   M : Type₁
   M = Σ Type₀ is-finite
 \end{code}
 
-Terms of this type are triples consisting of (1) a type $A$, (2) the ``size'' of $A$, and (3) a path witnessing the given size is correct by identifying $A$ with a canonical finite type of the same size. The following diagram gives some inhabitants of $M$.
-
-\begin{figure}[H]
-
-\end{figure}
-
-The reason we truncate the above instance of the identity type is to yield the following result.
+Terms of this type are triples consisting of (1) a type $A$, (2) the ``size'' of $A$, and (3) a path witnessing the given size is correct by identifying $A$ with a canonical finite type of the same size. The reason we truncate the above instance of the identity type is to yield the following result.
 
 \begin{theorem}[Rose, 2017]
 \label{finiteTypeIsUniv}
 The first projection $p_1$ of triples in $M$ is a univalent fibration.
 \end{theorem}
 \begin{proof}
-For any $A$, $isFinite(A)$ is a mere proposition due to the truncation of its second componet, amongst other things. Thus, from theorem \ref{predExtIsUniv}, $p_1$ is a univalent fibration.
+For any $A$, $isFinite(A)$ is a mere proposition due to the truncation of its second component, amongst other things. Thus, from theorem \ref{predExtIsUniv}, $p_1$ is a univalent fibration.
 \end{proof}
 
 This is the workhorse of our completeness result---intuitively, to induce a path between two triples, one simply needs to give an equivalence between their first components, which minimizes our proof obligations.
 
 \section{Pi}
 
-Now that we are acquainted with HoTT and finite types, we can examine the $\Pi$ programming language by Sabry et al. $\Pi$ starts with the notion that type equivalences are a natural expression of reversibility---one can write and execute a program and invert its effects via its quasi-inverse. $\Pi$ then restricts its type calculus to the semiring $(\{\mathbb{0},\mathbb{1}\},+,\times)$ up-to type equivalence. As a result, a complete characterization of equivalences over these types is precisely the semiring axioms, show below. Note that $\Pi$ uses $\leftrightarrow$ for $\simeq$.
+Now that we are acquainted with HoTT and finite types, we can examine the $\Pi$ programming language by Sabry et al. $\Pi$ starts with the notion that type equivalences are a natural expression of reversibility---one can write and execute a program and invert its effects via its quasi-inverse. $\Pi$ then restricts its type calculus to the semiring $(\{\mathbb{0},\mathbb{1}\},+,\times)$ up-to type equivalence. As a result, a complete characterization of equivalences over these types is precisely the semiring axioms in figure \ref{fig:PiLevel1}. Note that $\Pi$ uses $\leftrightarrow$ for $\simeq$.
 
 \AgdaHide{
 \begin{code}
@@ -553,13 +582,46 @@ data S : Set where
 \end{code}}
 
 \begin{figure}[h]
-\begin{alignat*}{3}
-id\!\!\leftrightarrow&:\tau&&\leftrightarrow\tau&&:id\!\!\leftrightarrow\\
-unite_+l&:\mathbb{0}\oplus\tau&&\leftrightarrow\tau&&:uniti_+l\\
-unite_+r&:\tau\oplus\mathbb{0}&&\leftrightarrow\tau&&:uniti_+r\\
-swap_+&:\tau_1\oplus\tau_2&&\leftrightarrow\tau_2\oplus\tau_1&&:swap_+\\
-\end{alignat*}
-\caption{Level 1 Programs (equivalences) in $\Pi$}
+\[
+\begin{array}{rrcll}
+\idc :& \tau & \iso & \tau &: \idc \\
+\\
+\identlp :&  \mathbb{0} + \tau & \iso & \tau &: \identrp \\
+\swapp :&  \tau_1 + \tau_2 & \iso & \tau_2 + \tau_1 &: \swapp \\
+\assoclp :&  \tau_1 + (\tau_2 + \tau_3) & \iso & (\tau_1 + \tau_2) + \tau_3 &: \assocrp \\
+\\
+\identlt :&  \mathbb{1} \times \tau & \iso & \tau &: \identrt \\
+\swapt :&  \tau_1 \times \tau_2 & \iso & \tau_2 \times \tau_1 &: \swapt \\
+\assoclt :&  \tau_1 \times (\tau_2 \times \tau_3) & \iso & (\tau_1 \times \tau_2) \times \tau_3 &: \assocrt \\
+\\
+\distz :&~ \mathbb{0} \times \tau & \iso & \mathbb{0} ~ &: \factorzl \\
+\dist :&~ (\tau_1 + \tau_2) \times \tau_3 & \iso & (\tau_1 \times \tau_3) + (\tau_2 \times \tau_3)~ &: \factor
+\end{array}
+\]
+\[
+\Rule{}
+{\jdg{}{}{c : \tau_1 \iso \tau_2}}
+{\jdg{}{}{!c : \tau_2 \iso \tau_1}}
+{}
+\qquad
+\Rule{}
+{\jdg{}{}{c_1 : \tau_1 \iso \tau_2} \quad \vdash c_2 : \tau_2 \iso \tau_3}
+{\jdg{}{}{c_1 \odot c_2 : \tau_1 \iso \tau_3}}
+{}
+\]
+\[
+\Rule{}
+{\jdg{}{}{c_1 : \tau_1 \iso \tau_2} \quad \vdash c_2 : \tau_3 \iso \tau_4}
+{\jdg{}{}{c_1 \oplus c_2 : \tau_1 + \tau_3 \iso \tau_2 + \tau_4}}
+{}
+\qquad
+\Rule{}
+{\jdg{}{}{c_1 : \tau_1 \iso \tau_2} \quad \vdash c_2 : \tau_3 \iso \tau_4}
+{\jdg{}{}{c_1 \otimes c_2 : \tau_1 \times \tau_3 \iso \tau_2 \times \tau_4}}
+{}
+\]
+\caption{Level 1 Programs (equivalences) in $\Pi$ \cite{carette_2016}}
+\label{fig:PiLevel1}
 \end{figure}
 
 \AgdaHide{
@@ -599,7 +661,13 @@ NOT₂ : 𝟚 ⟷ 𝟚
 NOT₂ = id⟷ ◎ (swap₊ ◎ id⟷)
 \end{code}
 
-Furthermore, one can ask whether two equivalences are extensionally equal. $\Pi$ then includes a language which encodes such proofs, shown below.
+Furthermore, one can ask whether two equivalences are extensionally equal. $\Pi$ then includes a language which encodes such proofs, called \emph{coherences}, shown in figure \ref{fig:PiLevel2}.
+
+\begin{figure}[h]
+\centering\includegraphics[width=\textwidth]{../pictures/PiLevel2.png}
+\caption{Level 2 Programs (coherences) in $\Pi$ \cite{frac_types}}
+\label{fig:PiLevel2}
+\end{figure}
 
 \AgdaHide{
 \begin{code}
@@ -765,7 +833,6 @@ Intuitively, a type is equivalent to its canonical form, allowing us to write a 
 \begin{code}
 normalize : (T : S) → T ⟷ canonical T
 \end{code}
-
 \AgdaHide{
 \begin{code}
 normalize ZERO = id⟷
@@ -783,10 +850,12 @@ We can finally write the translation by using the above functions. Note that we 
 ⟦ T ⟧₀ = (#⟦ T ⟧₀ , size T , ∣ ua #⟦ normalize T ⟧₁ ◾ fromSize=El ∣)
 \end{code}
 
-This definition is quite complex, so the following figure demonstrates its action as an injection into the model.
+This definition is quite complex, so figure \ref{fig:trans0} demonstrates its action as an injection into the model.
 
 \begin{figure}[h]
 \centering\includegraphics[width=\textwidth]{../pictures/translation0.png}
+\caption{The action of $\llbracket\cdot\rrbracket_0$}
+\label{fig:trans0}
 \end{figure}
 
 The translation of the model into the syntax is much simpler---since one cannot perform induction on the opaque type in the first component, we must return the next best thing: a conversion of the size in the second component to a type in the syntax.
@@ -796,10 +865,12 @@ The translation of the model into the syntax is much simpler---since one cannot 
 ⟦(T , n , p)⟧₀⁻¹ = fromSize n
 \end{code}
 
-We can again view the action of this translation as an injection in the figure below, taking a triple in the model to a canonical form in the syntax.
+We can again view the action of this translation as an injection in figure \ref{fig:transinv0}, taking a triple in the model to a canonical form in the syntax.
 
 \begin{figure}[h]
 \centering\includegraphics[width=\textwidth]{../pictures/translation0inverse.png}
+\caption{The action of $\llbracket\cdot\rrbracket_0^{-1}$}
+\label{fig:transinv0}
 \end{figure}
 
 We now have the sufficient tools to discuss the completeness of level 0. Let us formalize the statements of completeness we made two sections ago.
@@ -817,11 +888,12 @@ T&\mapsto(\llbracket T\rrbracket_0^{-1}, lem_2)
 \end{align*}
 \end{multicols}
 
-By sending each input to their respective translations, we have proof obligations $lem_1:\prod_{T:S}T\leftrightarrow\llbracket\llbracket T\rrbracket_0\rrbracket_0^{-1}$ and $lem_2:\prod_{T:M}\parallel T=\llbracket\llbracket T\rrbracket_0^{-1}\rrbracket_0\parallel$. Intuitively, these each say that going back and forth between the syntax and model (and vice versa) produces an equivalent object---let us prove them. To prove the first lemma, consider the following diagram, which depicts the round trip of applying both translations.
+By sending each input to their respective translations, we have proof obligations $lem_1:\prod_{T:S}T\leftrightarrow\llbracket\llbracket T\rrbracket_0\rrbracket_0^{-1}$ and $lem_2:\prod_{T:M}\parallel T=\llbracket\llbracket T\rrbracket_0^{-1}\rrbracket_0\parallel$. Intuitively, these each say that going back and forth between the syntax and model (and vice versa) produces an equivalent object---let us prove them. To prove the first lemma, consider figure \ref{fig:trip0}, which depicts the round trip of applying both translations.
 
 \begin{figure}[h]
-\caption{}
 \centering\includegraphics[width=\textwidth]{../pictures/coherence0.png}
+\caption{The action of the translation then its ``inverse''}
+\label{fig:trip0}
 \end{figure}
 
 It seems that we simply must construct an equivalence between a type in the syntax and its canonical form, in the same way we did for $\llbracket\cdot\rrbracket_0$. 
@@ -831,7 +903,7 @@ lem₁ : (T : S) → T ⟷ ⟦ ⟦ T ⟧₀ ⟧₀⁻¹
 lem₁ = normalize
 \end{code}
 
-The other direction is a bit more difficult. First, by \ref{finiteTypeIsUniv} and \AgdaFunction{idtoeqv}, we can define a function that converts paths between the first components of a triple in the model to a path between the entire triple.
+The other direction is a bit more difficult. First, by theorem \ref{finiteTypeIsUniv} and \AgdaFunction{idtoeqv}, we can define a function that converts paths between the first components of a triple in the model to a path between the entire triple.
 
 \begin{code}
 induce : {X Y : M} → p₁ X == p₁ Y → X == Y
@@ -841,11 +913,12 @@ induce : {X Y : M} → p₁ X == p₁ Y → X == Y
 induce = p₁ (finite-types-is-univ _ _) ∘ path-to-eqv
 \end{code}}
 
-Now, let us observe the round trip of applying both translations diagrammatically---it yields a similar triple but the first component is in canonical form. Precisely by the original path, we may induce a path across both triples by the fact that the first projection is univalent.
+Now, let us observe the this round trup in figure \ref{fig:trip0inv}---it yields a similar triple but the first component is in canonical form. Precisely by the original path, we may induce a path across both triples by the fact that the first projection is univalent.
 
 \begin{figure}[h]
-\caption{}
 \centering\includegraphics[width=\textwidth]{../pictures/coherence0inverse.png}
+\caption{The action of the ``inverse'' then the usual translation}
+\label{fig:trip0inv}
 \end{figure}
 
 This allows us to prove \AgdaFunction{lem₂} by induction on the truncated path in the third component of a triple, which by \AgdaFunction{induce}, gives us the necessary result.
@@ -856,17 +929,32 @@ lem₂ (T , n , p) =
   recTrunc _ (λ p' → ∣ induce (p' ◾ ! fromSize=El) ∣) identify p
 \end{code}
 
+With these lemmas, we may formally state these completeness results in Agda.
+
+\begin{code}
+cmpl⁰₁ : (T₁ : S) → Σ M (λ T₂ → T₁ ⟷ ⟦ T₂ ⟧₀⁻¹)
+cmpl⁰₁ T₁ = (⟦ T₁ ⟧₀ , lem₁ T₁)
+
+cmpl⁰₂ : (T₁ : M) → Σ S (λ T₂ → ∥ T₁ == ⟦ T₂ ⟧₀ ∥)
+cmpl⁰₂ T₁ = (⟦ T₁ ⟧₀⁻¹ , lem₂ T₁)
+\end{code}
+
 \section{Future Work}
 We are currently working on completeness results on levels 1 and 2: isomorphisms and coherences. Furthermore, we would like to develop the formal theory surrounding reversible programming. In particular, there is a deep interplay between homotopy theory and reversibility. For example, we do not have a clear perception of reversible programming with \emph{higher inductive types}, HoTT's internalization of homotopy types. Furthermore, we have the following conjecture which gives a topological characterization of our model, in terms of Eilenberg-MacLane (EM) spaces.
 
 \begin{conjecture}[Rose, 2017]
 $$M=\bigoplus_{n\in\mathbb{N}}K(S_n, 1)$$
-where $S_n$ is a symmetric group
+where $S_n$ is a symmetric group.
 \end{conjecture}
 
-An EM-space $K(G, n)$ has its $n$\textsuperscript{th} homotopy group (group of $n$-paths under concatenation) isomorphic to $G$ and every other one trivial. Thus, this conjecture states that the type of paths upon finite types of all sizes is precisely all symmetric groups with all higher paths being trivial.
+An EM-space $K(G, n)$ has its $n$\textsuperscript{th} homotopy group (group of $n$-paths under concatenation and inversion) isomorphic to $G$ and every other one trivial \cite{licata_2014}. Thus, this conjecture captures all the necessary information about paths in the model (and equivalences), and therefore the inherent reversibility.
 
 \section{Acknowledgements}
+We thank Prof. Amr Sabry, Prof. Jacques Carette, Robert Rose, Vikraman Choudhury, and Chao-Hong Chen for the collaborative effort on this project. This work is supported by NSF REU Grant \#1461061.
 
 \end{AgdaAlign}
+
+\bibliographystyle{acm}
+\bibliography{references}
+
 \end{document}
