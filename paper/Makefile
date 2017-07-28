@@ -1,8 +1,8 @@
 AGDA=agda
 AFLAGS=-i. --latex
-SOURCE=paper
+SOURCE=Pi
 POSTPROCESS=postprocess-latex.pl
-LATEX=latexmk -pdf -use-make -e '$$pdflatex=q/xelatex %O %S/'
+LATEX=latexmk -pdf -use-make -e '$$pdflatex=q/lualatex %O %S/'
 
 all:
 	$(AGDA) $(AFLAGS) $(SOURCE).lagda

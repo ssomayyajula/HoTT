@@ -51,12 +51,24 @@ postulate
 
 -- Need a level 2 analogue of normalizeC, which creates a coherence betwee
 ⟦⟦_⟧₁⟧₁⁻¹' : {X Y : U} (c : X ⟷ Y) → ⟦ ⟦ c ⟧₁ ⟧₁⁻¹' ⇔ c
-⟦⟦ c ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ unite₊l ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ swap₊ ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ assocl₊ ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ unite⋆l ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ swap⋆ ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ assocl⋆ ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ absorbr ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ dist ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {X} {Y} id⟷ = {!!}
+⟦⟦ ! c ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ c ◎ c₁ ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ c ⊕ c₁ ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦ c ⊗ c₁ ⟧₁⟧₁⁻¹' = {!!}
 
 ⟦⟦_⟧₁⁻¹'⟧₁ : {X Y : U} (p : ⟦ X ⟧₀ == ⟦ Y ⟧₀) → ⟦ ⟦ p ⟧₁⁻¹' ⟧₁ == p
 ⟦⟦_⟧₁⁻¹'⟧₁ {X} {Y} p = {!!} where
-  lem : ua #⟦ #⟦ (tpt id (ap p₁ p) , tpt-id-is-equiv (ap p₁ p)) ⟧₁⁻¹ ⟧₁ == {!!}
-  lem = ap ua (p₂ perm-equiv _) ◾ {!!}
+  --lem : ua #⟦ #⟦ (tpt id (ap p₁ p) , tpt-id-is-equiv (ap p₁ p)) ⟧₁⁻¹ ⟧₁ == {!!}
+  --lem = ap ua (p₂ perm-equiv _) ◾ {!!}
 
 cmpl₁ : {X Y : U} (p : ⟦ X ⟧₀ == ⟦ Y ⟧₀) → Σ (X ⟷ Y) (λ c → ⟦ c ⟧₁ == p)
 cmpl₁ p = ⟦ p ⟧₁⁻¹' , ⟦⟦ p ⟧₁⁻¹'⟧₁

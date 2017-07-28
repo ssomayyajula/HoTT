@@ -1,3 +1,14 @@
 *.agdai
 *~
+*.toc
+*.aux
+*.fls
+*.out
+*.ptb
+*.pdf
+*.log
+#*#
+.#*
+*.tex
+*.fdb_latexmk
 

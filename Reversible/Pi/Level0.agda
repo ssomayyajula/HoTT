@@ -9,7 +9,7 @@ open import Coproduct
 open import DependentSum using (Σ; _×_; _,_; p₁)
 open import NaturalNumbers
 open import Functions using (_∘_; id)
-open import Equivalences using (_≃_; !e; _●_; qinv-is-equiv; hae-is-qinv; path-to-eqv)
+open import Equivalences using (_≃_; !e; _●_; qinv-is-equiv; hae-is-qinv; path-to-eqv; ide)
 
 open import Paths using (_==_; refl; _◾_; ap)
 open import PathsInSigma using (pair=; dpair=)
@@ -87,6 +87,7 @@ size-el : (n : ℕ) → #⟦ fromSize n ⟧₀ == El n
 size-el = indℕ _ (refl 𝟘) (λ _ → ap (_+_ 𝟙))
 
 #⟦_⟧₁ : {X Y : U} → X ⟷ Y → #⟦ X ⟧₀ ≃ #⟦ Y ⟧₀
+#⟦ id⟷ ⟧₁ = ide _
 #⟦ unite₊l ⟧₁ = (λ { (i₁ ()); (i₂ x) → x }) ,
   qinv-is-equiv (i₂ , (λ { (i₁ ()); x@(i₂ _) → refl x }) , refl)
 #⟦ swap₊ ⟧₁ = (λ { (i₁ x) → i₂ x; (i₂ x) → i₁ x }) ,
@@ -147,7 +148,8 @@ size-el = indℕ _ (refl 𝟘) (λ _ → ap (_+_ 𝟙))
 ⟦⟦_⟧₀⁻¹⟧₀ : (X : M) → ∥ ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X ∥
 ⟦⟦ X@(T , n , p) ⟧₀⁻¹⟧₀ = recTrunc _ (∣_∣ ∘ lem) identify p where
   lem : T == El n → ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X
-  lem (refl _) = p₁ (finite-types-is-univ _ _) (path-to-eqv (size-el n))
+  lem p' = p₁ (finite-types-is-univ ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ X) (path-to-eqv (size-el n ◾ Paths.! p'))
+    --p₁ (finite-types-is-univ _ _) (path-to-eqv (size-el n))
 
 sound₀ : (T : U) → Σ M (λ X → ⟦ X ⟧₀⁻¹ ⟷ T)
 sound₀ T = ⟦ T ⟧₀ , ⟦⟦ T ⟧₀⟧₀⁻¹
