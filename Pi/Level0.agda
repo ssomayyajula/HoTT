@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K #-}
 
-module Reversible.Pi.Level0 where
+module Pi.Level0 where
 
 open import Type using (Type; Type₀; Type₁)
 open import Zero using (𝟘)
@@ -19,7 +19,7 @@ open import PropositionalTruncation using (∥_∥; ∣_∣; recTrunc; identify)
 open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
 open UnivalentUniverseOfFiniteTypes
 
-open import Reversible.Pi.Syntax
+open import Pi.Syntax
 
 {-
 
@@ -49,9 +49,11 @@ By induction on |p| and |q|, we get a path El m == El n, which from classical ma
  
 -}
 
+-- The model is the subuniverse of finite types
 M : Type₁
 M = Σ Type₀ is-finite
 
+-- Computes the number of canonical inhabitants of a finite type
 size : U → ℕ
 size ZERO = 0
 size ONE  = 1
@@ -69,6 +71,7 @@ size* : (n₁ n₂ : ℕ) → TIMES (fromSize n₁) (fromSize n₂) ⟷ fromSize
 size* 0         n₂ = absorbr
 size* (succ n₁) n₂ = dist ◎ ((unite⋆l ⊕ size* n₁ n₂) ◎ size+ n₂ (mult n₁ n₂))
 
+-- Computes an isomorphism between a finite type and its canonical form
 normalizeC : (t : U) → t ⟷ canonicalU t
 normalizeC ZERO = id⟷
 normalizeC ONE  = uniti₊l ◎ swap₊
@@ -136,6 +139,8 @@ size-el = indℕ _ (refl 𝟘) (λ _ → ap (_+_ 𝟙))
 ⟦_⟧₀ : U → M
 ⟦ T ⟧₀ = #⟦ T ⟧₀ , size T , ∣ ua #⟦ normalizeC T ⟧₁ ◾ size-el _ ∣
 
+-- Can't induct over the type in the first component, so return
+-- the next best thing
 ⟦_⟧₀⁻¹ : M → U
 ⟦ _ , n , _ ⟧₀⁻¹ = fromSize n
 
@@ -148,9 +153,11 @@ size-el = indℕ _ (refl 𝟘) (λ _ → ap (_+_ 𝟙))
 ⟦⟦_⟧₀⁻¹⟧₀ : (X : M) → ∥ ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X ∥
 ⟦⟦ X@(T , n , p) ⟧₀⁻¹⟧₀ = recTrunc _ (∣_∣ ∘ lem) identify p where
   lem : T == El n → ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ == X
-  lem p' = p₁ (finite-types-is-univ ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ X) (path-to-eqv (size-el n ◾ Paths.! p'))
-    --p₁ (finite-types-is-univ _ _) (path-to-eqv (size-el n))
+  lem (refl _) = p₁ (finite-types-is-univ _ _) (path-to-eqv (size-el n))
+    {- Alternative proof:
+         p₁ (finite-types-is-univ ⟦ ⟦ X ⟧₀⁻¹ ⟧₀ X) (path-to-eqv (size-el n ◾ Paths.! p')) -}
 
+-- TODO: Better names
 sound₀ : (T : U) → Σ M (λ X → ⟦ X ⟧₀⁻¹ ⟷ T)
 sound₀ T = ⟦ T ⟧₀ , ⟦⟦ T ⟧₀⟧₀⁻¹
 

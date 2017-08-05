@@ -17,11 +17,6 @@ data Perm : ℕ → Type₀ where
   swap12 : {n : ℕ} → Perm (suc (suc n))
   _□_ : {n : ℕ} → Perm n → Perm n → Perm n
 
-{-
-swap12-f : {n : ℕ} → AFin (suc (suc n)) → AFin n
-swap12-f = {!!}
--}
-
 perm-to-equiv : {n : ℕ} → Perm n → AFin n ≃ AFin n
 perm-to-equiv {0}     right-shift = ide 𝟘
 perm-to-equiv {suc n} right-shift = {!!}

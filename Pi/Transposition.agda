@@ -1,7 +1,8 @@
-module Reversible.Pi.Transposition where
+module Pi.Transposition where
 
 open import Type using (Type; Type₀)
 open import Level using (Lift; lift)
+open import Zero
 open import One
 open import Paths using (_==_; refl)
 open import Functions using (_∘_; id)
@@ -15,16 +16,17 @@ open import NaturalNumbers
 open import EmbeddingsInUniverse using (module UnivalentUniverseOfFiniteTypes)
 open UnivalentUniverseOfFiniteTypes using (El)
 
-open import Reversible.Pi.CPerm
-open import Reversible.Pi.Syntax
+open import Pi.CPerm
+open import Pi.Syntax
 
-toℕ : {n : ℕ} → El n → ℕ
-toℕ {0} ()
-toℕ {succ _} fzero     = 0
-toℕ {succ _} (fsucc n) = succ (toℕ n)
+_≤_ : {n : ℕ} → El n → El n → Type₀
+_≤_ {0} ()
+_≤_ {succ _} (i₁ 0₁) _     = 𝟙
+_≤_ {succ _} (i₂ a) (i₂ b) = a ≤ b
+_ ≤ _ = 𝟘
 
 Transposition : ℕ → Type₀
-Transposition n = Σ (El n × El n) (λ { (i , j) → toℕ i ≤ toℕ j })
+Transposition n = Σ (El n × El n) (λ { (i , j) → i ≤ j })
 
 data List {ℓ} (A : Type ℓ) : Type ℓ where
   [] : List A
@@ -34,7 +36,7 @@ Transposition* : ℕ → Type₀
 Transposition* n = List (Transposition n)
 
 postulate
-  swapFin : {n : ℕ} → (a b : El n) → (leq : toℕ a ≤ toℕ b) → fromSize n ⟷ fromSize n
+  swapFin : {n : ℕ} → (a b : El n) → (leq : a ≤ b) → fromSize n ⟷ fromSize n
 {-swapFin {0} ()
 swapFin {succ _} fzero fzero 0₁ = id⟷
 swapFin {succ (succ _)} fzero (fsucc fzero) 0₁ = assocl₊ ◎ ((swap₊ ⊕ id⟷) ◎ assocr₊)

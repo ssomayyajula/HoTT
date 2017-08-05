@@ -39,6 +39,7 @@ ex3 (cons 2∉1::2::[] (cons _ (cons _ _))) = 2∉1::2::[] (there here)
 
 Perm : ℕ → Type₀
 Perm n = Σ (Vec (AFin n) n) HasNoDups
+
 {-
 index-of : ∀ {ℓ} {A : Type ℓ} (x : A) {n : ℕ} (xs : Vec A n) → x ∈ xs → AFin n
 index-of x xs = helper fzero x xs where
@@ -47,7 +48,6 @@ index-of x xs = helper fzero x xs where
   helper {n = 0} ()
   helper {n = suc n} i x (y ∷ ys) (there y∈ys) = helper {!!} x ys y∈ys
  -}
-
 
 finject : ∀ {m} → AFin m → AFin (suc m)
 finject {0} ()
@@ -59,18 +59,10 @@ fpred {0} ()
 fpred {suc n} fzero    = fzero
 fpred {suc n} (fsuc x) = finject {n} x
 
-{-
-tabulat : ∀ {n} → (AFin n → AFin n) → Vec (AFin n) n
-tabulat {zero}  f = []
-tabulat {suc n} f = f fzero ∷ (tabulat {n = n} (fpred ∘ f ∘ fsuc))
--}
-
 perm-to-equiv : {n : ℕ} → Perm n → AFin n ≃ AFin n
 perm-to-equiv (xs , nd) =
   {- Inverse looks up x in xs and returns index -}
   (λ x → lookup (coe (ua afin-fin-equiv) x) xs) , (λ x → {!!}) , {!!} , {!!} , {!!}
-
---(λ x → (λ { fzero → fzero; (fsuc n) → n }) (f (fsuc x)))
 
 equiv-to-perm : {n : ℕ} → AFin n ≃ AFin n → Perm n
 equiv-to-perm {0} _ = ([] , nil)
@@ -84,4 +76,4 @@ perm-equiv = perm-to-equiv , qinv-is-equiv (equiv-to-perm , {!!} , {!!})
 
 φ : (f : AFin n → AFin n) → is-equiv f → Σ (Perm n) (λ p → f == perm-to-equiv p)
 φ x with perm-equiv
-φ x | (perm , e) → (perm-to-equiv  )
+φ x | (perm , e) → {!!}

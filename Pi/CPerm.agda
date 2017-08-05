@@ -1,4 +1,4 @@
-module Reversible.Pi.CPerm where
+module Pi.CPerm where
 
 open import Type using (Type; Type₀)
 open import Level using (Lift; lift)

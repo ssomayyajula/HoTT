@@ -29,14 +29,6 @@ suc-not-eq-zero ()
 equiv-is-inj : ∀ {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} → (f : A → B) → is-equiv f → (x y : A) → f x == f y → x == y
 equiv-is-inj _ (g , h , _) x y p = ! (h x) ◾ (ap g p) ◾ h y
 
-{-
-equiv : {m n : ℕ} → Data.Nat._≤_ m n ≃ ¬ (Data.Nat._≤_ n m)
-equiv = {!!} , {!!} where
-  f : {m n : ℕ} → Data.Nat._≤_ m n → ¬ (Data.Nat._≤_ n m)
-  f {0} {n} z≤n ()
-  f = {!!}
--}
-
 tri : {n : ℕ} → (i j : Fin n) → (Data.Fin._<_ i j) + (i == j) + (Data.Fin._<_ j i)
 tri zero zero    = i₂ (i₁ (refl zero))
 tri (suc x) zero = i₂ (i₂ (s≤s z≤n))
@@ -103,4 +95,3 @@ equiv-to-perm {zero} e = [] , (λ m ())
 equiv-to-perm {suc n} (f , e) =
   perm-succ (toℕ (f zero)) (equiv-to-perm (fin-equiv-pred (f , e)))
 
---cmpl1-Ω

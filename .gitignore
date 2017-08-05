@@ -11,4 +11,17 @@
 .#*
 *.tex
 *.fdb_latexmk
+*.4ct
+*.4tc
+*.bbl
+*.blg
+*.css
+*.dvi
+*.html
+*.idv
+*.lg
+*.tex.bak
+*.tml
+*.xref
+*.tmp
 

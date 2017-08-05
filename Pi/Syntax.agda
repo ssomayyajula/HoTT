@@ -1,16 +1,22 @@
-module Reversible.Pi.Syntax where
+module Pi.Syntax where
 
 open import NaturalNumbers using (ℕ; recℕ)
 
+-- The Pi universe is the finite type semiring up-to isomorphism
 data U : Set where
   ZERO  : U
   ONE   : U
   PLUS  : U → U → U
   TIMES : U → U → U
 
+-- Given n, this returns PLUS ONE (PLUS ONE (... ZERO ...)) n times
+-- That is, the "canonical" type with n canonical inhabitants
 fromSize : ℕ → U
 fromSize = recℕ U ZERO (λ _ → PLUS ONE)
 
+-- Level 1 Programs: Isomorphisms
+-- Notice that we elide all syntactic inverses by having
+-- inversion as a primitive combinator
 data _⟷_ : U → U → Set where
   unite₊l : {t : U} → PLUS ZERO t ⟷ t
   --uniti₊l : {t : U} → t ⟷ PLUS ZERO t
@@ -53,12 +59,10 @@ uniti₊l = ! unite₊l
 assocr₊ : {t₁ t₂ t₃ : U} → PLUS (PLUS t₁ t₂) t₃ ⟷ PLUS t₁ (PLUS t₂ t₃)
 assocr₊ = ! assocl₊
 
+-- Level 2 Programs: Coherences/proofs that two isomorphisms are equal
+-- TODO: Finish this definition
 data _⇔_ : {X Y : U} → X ⟷ Y → X ⟷ Y → Set where
 
+-- Level 3 is trivial i.e. all coherences are equal
 data _⇌_ {X Y : U} {p q : X ⟷ Y} (u v : p ⇔ q) : Set where
   trunc : u ⇌ v
-
-{-postulate
-  _⊕_ : {t₁ t₂ t₃ t₄ : U} → (t₁ ⟷ t₃) → (t₂ ⟷ t₄) → (PLUS t₁ t₂ ⟷ PLUS t₃ t₄)
-  _⊗_ : {t₁ t₂ t₃ t₄ : U} → (t₁ ⟷ t₃) → (t₂ ⟷ t₄) → (TIMES t₁ t₂ ⟷ TIMES t₃ t₄)
--}
