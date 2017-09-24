@@ -2,8 +2,8 @@
 
 module Pi.Topology.KS21 where
 
-open import lib.Basics using (Type; Type₀; Type₁; cst; _==_; idp; !; Σ; _,_; pair=; _≃_; equiv; _⊔_; inl; inr; has-level; idf; ide; transport!; _∘_; _∼_; is-equiv; is-eq; λ=; equiv-is-inj; ⊥-elim; _∙_; ua)
-open import lib.types.Truncation using (Trunc; [_]; Trunc-level; Trunc-rec)
+open import lib.Basics using (Type; Type₀; Type₁; cst; _==_; idp; !; Σ; _,_; pair=; _≃_; equiv; _⊔_; inl; inr; has-level; idf; ide; transport!; _∘_; _∼_; is-equiv; is-eq; λ=; equiv-is-inj; ⊥-elim; _∙_; ua; _∘e_)
+open import lib.types.Truncation using (Trunc; [_]; Trunc-level; Trunc-rec; Trunc-elim)
 open import lib.PathOver using (from-transp)
 open import lib.types.Bool using (Bool; true; false; Bool-level; Bool-elim; Bool-true≠false)
 open import lib.groups.Homomorphism using (group-hom)
@@ -28,6 +28,9 @@ not = f , invol-is-equiv (Bool-elim idp idp) where
   f true  = false
   f false = true
 
+not∘not=ide : not ∘e not == ide Bool
+not∘not=ide = equiv= (λ= (Bool-elim idp idp))
+
 all-bool-equiv : (p : Bool ≃ Bool) → (p == ide Bool) ⊔ (p == not)
 all-bool-equiv (f , e) with inspect (f true) | inspect (f false)
 ... | true  with= p | false with= q = inl (equiv= (λ= (Bool-elim p q)))
@@ -46,18 +49,20 @@ U = Σ Type₀ (λ X → Trunc -1 (X == Bool))
 `𝟚 : U
 `𝟚 = Bool , [ idp ]
 
-`id : `𝟚 == `𝟚
-`id = idp
+`id : {A : U} → A == A
+`id {A} = idp
 
 `not : `𝟚 == `𝟚
 `not = pair= (ua not) (from-transp _ _ (prop-has-all-paths Trunc-level _ _))
 
+`not∙`not=`id : `not ∙ `not == `id
+`not∙`not=`id = {!!} -- TODO: copy proof from TwoUniverse
+
 K : Type₀
 K = EM₁ (S Bool-level)
 
--- TODO: But U is level 2...
 U-level : has-level 1 U
-U-level = {!!}
+U-level = {!!} -- TODO: copy proof from TwoUniverse
 
 model-is-em : U ≃ K
 model-is-em = equiv f g {!!} {!!} where
