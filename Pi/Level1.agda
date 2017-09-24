@@ -52,7 +52,58 @@ postulate
 -- Need a level 2 analogue of normalizeC, which creates a coherence between a
 -- isomorphism and its..."normalized" version
 ⟦⟦_⟧₁⟧₁⁻¹' : {X Y : U} (c : X ⟷ Y) → ⟦ ⟦ c ⟧₁ ⟧₁⁻¹' ⇔ c
-⟦⟦ c ⟧₁⟧₁⁻¹' = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ZERO} {ZERO} id⟷ = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ZERO} {ZERO} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ZERO} {ZERO} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ZERO} {ONE} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ZERO} {ONE} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ZERO} {PLUS Y Y₁} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ZERO} {PLUS Y Y₁} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ZERO} {TIMES Y Y₁} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ZERO} {TIMES Y Y₁} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ONE} {ZERO} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ONE} {ZERO} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ONE} {ONE} id⟷ = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ONE} {ONE} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ONE} {ONE} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ONE} {PLUS Y Y₁} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ONE} {PLUS Y Y₁} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ONE} {TIMES Y Y₁} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {ONE} {TIMES Y Y₁} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS .ZERO .ZERO} {ZERO} unite₊l = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {ZERO} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {ZERO} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS .ZERO .ONE} {ONE} unite₊l = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {ONE} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {ONE} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS .ZERO .(PLUS Y Y₁)} {PLUS Y Y₁} unite₊l = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {PLUS .X₁ .X} swap₊ = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X .(PLUS _ Y)} {PLUS .(PLUS X _) Y} assocl₊ = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {PLUS .X .X₁} id⟷ = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {PLUS Y Y₁} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {PLUS Y Y₁} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {PLUS Y Y₁} (c ⊕ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS .ZERO .(TIMES Y Y₁)} {TIMES Y Y₁} unite₊l = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {TIMES Y Y₁} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {PLUS X X₁} {TIMES Y Y₁} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES .ONE .ZERO} {ZERO} unite⋆l = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES .ZERO X} {ZERO} absorbr = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {ZERO} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {ZERO} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES .ONE .ONE} {ONE} unite⋆l = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {ONE} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {ONE} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES .ONE .(PLUS Y Y₁)} {PLUS Y Y₁} unite⋆l = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES .(PLUS _ _) X} {PLUS .(TIMES _ X) .(TIMES _ X)} dist = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {PLUS Y Y₁} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {PLUS Y Y₁} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES .ONE .(TIMES Y Y₁)} {TIMES Y Y₁} unite⋆l = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {TIMES .X₁ .X} swap⋆ = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X .(TIMES _ Y)} {TIMES .(TIMES X _) Y} assocl⋆ = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {TIMES .X .X₁} id⟷ = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {TIMES Y Y₁} (! c) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {TIMES Y Y₁} (c ◎ c₁) = {!!}
+⟦⟦_⟧₁⟧₁⁻¹' {TIMES X X₁} {TIMES Y Y₁} (c ⊗ c₁) = {!!}
 
 -- TODO: This proof does not seem difficult, just annoying
 ⟦⟦_⟧₁⁻¹'⟧₁ : {X Y : U} (p : ⟦ X ⟧₀ == ⟦ Y ⟧₀) → ⟦ ⟦ p ⟧₁⁻¹' ⟧₁ == p
