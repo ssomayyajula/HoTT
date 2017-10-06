@@ -31,6 +31,7 @@ module _ {ℓ} {ℓ'} {A : Type ℓ} {P : A → Type ℓ'} {x y : A} {p : x == y
 --PathOver : ∀ {ℓ} {ℓ'} {A : Type ℓ} (P : A → Type ℓ') {x y : A} (p : x == y) (ux : P x) (uy : P y) → Type ℓ'
 --PathOver P p ux uy = tpt P p ux == uy
 
+
 postulate
   K : Type₀
   base : K
@@ -38,7 +39,7 @@ postulate
   ρ : loop ◾ loop == refl base
   φ : has-lvl K lvl-1
 
-2module Ind-K {ℓ} (P     : K → 1types ℓ)
+module Ind-K {ℓ} (P     : K → 1types ℓ)
                  (base* : p₁ (P base))
                  (loop* : PathOver (p₁ ∘ P) loop base* base*)
                  (ρ*    : PathOver (λ p → PathOver (p₁ ∘ P) p base* base*) ρ {!!} {!!}) where
@@ -73,3 +74,4 @@ _ = f , qinv-is-equiv (g , Ind-K.f (λ z → (g (f z) == z) , {!!}) {!!} {!!} , 
   g (_ , r) = recTrunc K (λ _ → base) (lvl-1-is-prop φ) r
 -}
 
+l = dpair=◾

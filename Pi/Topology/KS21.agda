@@ -2,7 +2,7 @@
 
 module Pi.Topology.KS21 where
 
-open import lib.Basics using (Type; Type₀; Type₁; cst; _==_; idp; !; Σ; _,_; pair=; _≃_; equiv; _⊔_; inl; inr; has-level; idf; ide; transport!; _∘_; _∼_; is-equiv; is-eq; λ=; equiv-is-inj; ⊥-elim; _∙_; ua; _∘e_)
+open import lib.Basics using (Type; Type₀; Type₁; cst; _==_; idp; !; Σ; _,_; pair=; _≃_; equiv; _⊔_; inl; inr; has-level; idf; ide; transport!; _∘_; _∼_; is-equiv; is-eq; λ=; equiv-is-inj; ⊥-elim; _∙_; ua; _∘e_; fst; ap; PathOver; ua-η)
 open import lib.types.Truncation using (Trunc; [_]; Trunc-level; Trunc-rec; Trunc-elim)
 open import lib.PathOver using (from-transp)
 open import lib.types.Bool using (Bool; true; false; Bool-level; Bool-elim; Bool-true≠false)
@@ -46,14 +46,27 @@ bool-equiv-induction {P = P} pide pnot p with all-bool-equiv p
 U : Type₁
 U = Σ Type₀ (λ X → Trunc -1 (X == Bool))
 
-`𝟚 : U
-`𝟚 = Bool , [ idp ]
+`Bool : U
+`Bool = Bool , [ idp ]
 
 `id : {A : U} → A == A
 `id {A} = idp
 
-`not : `𝟚 == `𝟚
-`not = pair= (ua not) (from-transp _ _ (prop-has-all-paths Trunc-level _ _))
+{-module _ {ℓ} {ℓ'} {A : Type ℓ} {P : A → Type ℓ'} {x y z : A} {ux : P x} {uz : P z} where
+  pair=∙ : (p : x == y) (q : y == z)
+           (u : PathOver P p ux {!!}) → pair= (p ∙ q) {!!} == pair= p {!!} ∙ pair= q {!!}
+  pair=∙ = {!!}-}
+
+module _ {ℓ} where
+  ua-ide : (A : Type ℓ) → ua (ide A) == idp
+  ua-ide _ = ua-η idp
+
+-- TODO: copy pred-ext-is-univ and reuse here
+lift : {A B : U} → fst A ≃ fst B → A == B
+lift e = pair= (ua e) (from-transp _ _ (prop-has-all-paths Trunc-level _ _))
+
+`not : `Bool == `Bool
+`not = lift not
 
 `not∙`not=`id : `not ∙ `not == `id
 `not∙`not=`id = {!!} -- TODO: copy proof from TwoUniverse
@@ -71,8 +84,7 @@ model-is-em = equiv f g {!!} {!!} where
   f (_ , p) = Trunc-rec {!!} (cst embase) p
   
   g : K → U
-  g = EM₁-rec U-level `𝟚 (group-hom
-    (bool-equiv-induction `id `not)
+  g = EM₁-rec U-level `Bool (group-hom lift
     (bool-equiv-induction
       (bool-equiv-induction
         {!!}    -- h (id ∘ id)   == h id ∙ h id (easy)
@@ -80,3 +92,5 @@ model-is-em = equiv f g {!!} {!!} where
       (bool-equiv-induction
         {!!}    -- h (not ∘ id)  == h id ∙ h not (easy)
         {!!}))) -- h (not ∘ not) == h not ∙ h not (use not ∘ not == id, `not ∙ `not == `id)
+
+--(ap lift (∘e-lunit _) ∙ ap (λ x → pair= x (from-transp _ _ (prop-has-all-paths Trunc-level _ _))) (ua-ide Bool) ∙ {!!})

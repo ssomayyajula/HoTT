@@ -21,11 +21,15 @@ module _ {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} {f g : A ≃ B} where
   equiv= : fst f == fst g → f == g
   equiv= p = pair= p (from-transp _ _ (prop-has-all-paths is-equiv-is-prop _ _))
 
+module _ {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} where
+  ∘e-lunit : (f : A ≃ B) → ide B ∘e f == f
+  ∘e-lunit f = equiv= idp
+
 -- Equivalences on a set form a group under composition, inversion
 S : ∀ {ℓ} {A : Type ℓ} → is-set A → Group ℓ
 S {A = A} h = group (A ≃ A) (≃-is-set h h)
   (group-structure
-    (ide _) (_⁻¹) (_∘e_)
-    (λ _       → equiv= idp)
+    (ide _) _⁻¹ _∘e_
+    ∘e-lunit
     (λ _ _ _   → equiv= idp)
     (λ{(_ , e) → equiv= (λ= (is-equiv.g-f e))}))
