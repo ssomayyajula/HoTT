@@ -13,9 +13,10 @@ U[ X ] = Σ Type₀ (λ Y → Trunc -1 (Y == X))
 
 module _ {X} where
   ~ : {A B : U[ X ]} → fst A ≃ fst B → A == B
-  ~ e = pair= (ua e) (from-transp _ _ (prop-has-all-paths Trunc-level _ _))
+  ~ e = pair= (ua e) $ from-transp _ _ $ prop-has-all-paths Trunc-level _ _
 
-  ~-ide : {A : U[ X ]} → ~ {A} (ide (fst A)) == idp
-  ~-ide {A} =
-    ap (λ x → pair= x (from-transp _ _ (prop-has-all-paths Trunc-level _ _))) (ua-ide (fst A)) ∙
-    {!!}
+  postulate
+    ~ide=idp : {A : U[ X ]} → ~ {A} (ide (fst A)) == idp
+  --~-ide {A} =
+    --ap (λ x → pair= x (from-transp _ _ (prop-has-all-paths Trunc-level _ _))) (ua-ide (fst A)) ∙
+    --{!!}
