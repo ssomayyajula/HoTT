@@ -20,7 +20,7 @@ U[Bool]≃K[S₂,1] : U[ Bool ] ≃ K[S₂,1]
 U[Bool]≃K[S₂,1] = equiv f g ε η where
   f : U[ Bool ] → K[S₂,1]
   -- TODO: EM₁-level not compatible with prop truncation
-  f (_ , p) = Trunc-rec {!!} (cst embase) p
+  f = Trunc-rec {!!} (cst embase) ∘ snd
   
   g : K[S₂,1] → U[ Bool ]
   g = EM₁-rec U[Bool]-level (` Bool) $ group-hom ~
@@ -36,4 +36,8 @@ U[Bool]≃K[S₂,1] = equiv f g ε η where
   ε = EM₁-elim {!!} {!!} {!!} {!!}
 
   η : ∀ a → g (f a) == a
-  η (t , p) = {!!} --Trunc-elim {!!} {!!} p
+  η a@(t , p) = Trunc-rec {!!} lem p where
+    -- TODO: this is bad, because the trunc-rec doesn't remember that p is
+    -- the second component of a, so p doesn't get eliminated into idp or ua not during Bool-path-induction
+    lem : fst a == Bool → g (f a) == a
+    lem idp = Trunc-rec {!!} {!!} p

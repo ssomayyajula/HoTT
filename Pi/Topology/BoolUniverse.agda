@@ -29,6 +29,10 @@ Bool-equiv-induction {P = P} pide pnot p with all-Bool-equiv p
 ... | inl is-ide = transport! P is-ide pide
 ... | inr is-not = transport! P is-not pnot
 
+-- TODO: port all-1-paths-𝟚 from 2DTypes/Pi2.TwoUniverse
+postulate
+  Bool-path-induction : ∀ {ℓ} {P : Bool == Bool → Type ℓ} → P idp → P (ua not) → (p : Bool == Bool) → P p
+
 ~not : (` Bool) == (` Bool)
 ~not = ~ not
 
