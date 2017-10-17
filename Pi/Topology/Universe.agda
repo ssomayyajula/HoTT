@@ -17,6 +17,5 @@ module _ {X} where
 
   postulate
     ~ide=idp : {A : U[ X ]} → ~ {A} (ide (fst A)) == idp
-  --~-ide {A} =
-    --ap (λ x → pair= x (from-transp _ _ (prop-has-all-paths Trunc-level _ _))) (ua-ide (fst A)) ∙
+  --~ide=idp {A} = ap (λ x → pair= x (from-transp _ _ (prop-has-all-paths Trunc-level _ _))) (ua-ide (fst A)) ∙
     --{!!}

@@ -25,9 +25,7 @@ U[Bool]≃K[S₂,1] = equiv f g ε η where
   g : K[S₂,1] → U[ Bool ]
   g = EM₁-rec U[Bool]-level (` Bool) $ group-hom ~
     (Bool-equiv-induction
-      (Bool-equiv-induction
-        (ap ~ (∘e-unit-l _) ∙ ~ide=idp ∙ ap (λ x → x ∙ x) (! ~ide=idp))
-        (ap ~ (∘e-unit-l _) ∙ ap (λ x → x ∙ ~ not) (! ~ide=idp)))
+      (λ e → ap ~ (∘e-unit-l _) ∙ ap (λ x → x ∙ ~ e) (! ~ide=idp))
       (Bool-equiv-induction
         (ap ~ (∘e-unit-r _) ∙ ! (ap (_∙_ (~ not)) ~ide=idp ∙ ∙-unit-r _))
         (ap ~ not∘not=ide ∙ ~ide=idp ∙ ! ~not∙~not=idp)))
@@ -41,3 +39,5 @@ U[Bool]≃K[S₂,1] = equiv f g ε η where
     -- the second component of a, so p doesn't get eliminated into idp or ua not during Bool-path-induction
     lem : fst a == Bool → g (f a) == a
     lem idp = Trunc-rec {!!} {!!} p
+
+open import lib.types.Paths
