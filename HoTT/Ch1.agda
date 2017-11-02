@@ -337,3 +337,18 @@ deMorgans (inr notB) (_ , b) = notB b
 -- Exercise 1.13
 notLEM : {P : Set} → ¬ (¬ (Coprod P (¬ P)))
 notLEM notCo = notCo (inr (λ p → notCo (inl p)))
+
+open import Agda.Primitive
+
+record Σ {ℓ₁} {ℓ₂} (A : Set ℓ₁) (P : A → Set ℓ₂) : Set (ℓ₁ ⊔ ℓ₂) where
+  constructor _,_
+  field
+    fst : A
+    snd : P fst
+
+open Σ public
+
+markov : {P : ℕ → Set} →
+  ((x : ℕ) → Coprod (P x) (¬ (P x))) →
+  ¬((x : ℕ) → (P x)) → Σ ℕ (λ y → ¬ (P y))
+markov {P} lem f = {!!} , {!!}

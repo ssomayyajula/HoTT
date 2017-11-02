@@ -31,7 +31,7 @@ U[Bool]≃K[S₂,1] = equiv f g ε η where
         (ap ~ not∘not=ide ∙ ~ide=idp ∙ ! ~not∙~not=idp)))
 
   ε : ∀ b → f (g b) == b
-  ε = EM₁-elim {!!} {!!} {!!} {!!}
+  ε = EM₁-elim {!!} idp (λ g₁ → {!!}) λ g₁ g₂ → {!!}
 
   η : ∀ a → g (f a) == a
   η a@(t , p) = Trunc-rec {!!} lem p where
@@ -39,5 +39,3 @@ U[Bool]≃K[S₂,1] = equiv f g ε η where
     -- the second component of a, so p doesn't get eliminated into idp or ua not during Bool-path-induction
     lem : fst a == Bool → g (f a) == a
     lem idp = Trunc-rec {!!} {!!} p
-
-open import lib.types.Paths

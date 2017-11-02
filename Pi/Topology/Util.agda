@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K --rewriting #-}
+
 module Pi.Topology.Util where
 
 open import lib.Basics
