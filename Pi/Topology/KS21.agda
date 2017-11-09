@@ -31,7 +31,8 @@ U[Bool]≃K[S₂,1] = equiv f g ε η where
         (ap ~ not∘not=ide ∙ ~ide=idp ∙ ! ~not∙~not=idp)))
 
   ε : ∀ b → f (g b) == b
-  ε = EM₁-elim {!!} idp (λ g₁ → {!!}) λ g₁ g₂ → {!!}
+  -- EM₁-elim {!!} idp (λ g₁ → {!!}) λ g₁ g₂ → {!!}
+  ε = EM₁-elim {!!} {!!} (λ g₁ → {!!}) λ g₁ g₂ → {!!} 
 
   η : ∀ a → g (f a) == a
   η a@(t , p) = Trunc-rec {!!} lem p where
