@@ -32,9 +32,14 @@ U[Bool]≃K[S₂,1] = equiv f g ε η where
         (ap ~ not∘not=ide ∙ ~ide=idp ∙ ! ~not∙~not=idp)))
 
   ε : ∀ b → f (g b) == b
+<<<<<<< HEAD
   ε = lem where
     lem : ∀ b → embase == b
     lem = {!!}
+=======
+  -- EM₁-elim {!!} idp (λ g₁ → {!!}) λ g₁ g₂ → {!!}
+  ε = EM₁-elim {!!} {!!} (λ g₁ → {!!}) λ g₁ g₂ → {!!} 
+>>>>>>> 024c9bb78ae1fda48b37699cf00a2d8281135e88
 
   η : ∀ a → g (f a) == a
   η (t , p) = Trunc-elim lem pf p where
