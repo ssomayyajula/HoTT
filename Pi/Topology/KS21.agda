@@ -13,14 +13,15 @@ open import Pi.Topology.Universe
 open import Pi.Topology.BoolUniverse
 open import Pi.Topology.Equivalence using (≃-Group; ∘e-unit-l)
 
+open import lib.PathOver
+
 K[S₂,1] : Type₀
 K[S₂,1] = EM₁ $ ≃-Group Bool-level
 
 U[Bool]≃K[S₂,1] : U[ Bool ] ≃ K[S₂,1]
 U[Bool]≃K[S₂,1] = equiv f g ε η where
   f : U[ Bool ] → K[S₂,1]
-  -- TODO: EM₁-level not compatible with prop truncation
-  f = Trunc-rec {!!} (cst embase) ∘ snd
+  f _ = embase
   
   g : K[S₂,1] → U[ Bool ]
   g = EM₁-rec U[Bool]-level (` Bool) $ group-hom ~
@@ -31,11 +32,23 @@ U[Bool]≃K[S₂,1] = equiv f g ε η where
         (ap ~ not∘not=ide ∙ ~ide=idp ∙ ! ~not∙~not=idp)))
 
   ε : ∀ b → f (g b) == b
-  ε = EM₁-elim {!!} idp (λ g₁ → {!!}) λ g₁ g₂ → {!!}
+  ε = lem where
+    lem : ∀ b → embase == b
+    lem = {!!}
 
   η : ∀ a → g (f a) == a
-  η a@(t , p) = Trunc-rec {!!} lem p where
+  η (t , p) = Trunc-elim lem pf p where
+    lem : ∀ p → is-prop $ g (f (t , p)) == (t , p)
+    lem = {!!}
+
+    pf : ∀ p → g (f (t , [ p ])) == t , [ p ]
+    pf idp = {!!}
+    
+{-
+
+ Trunc-rec {!!} lem p where
     -- TODO: this is bad, because the trunc-rec doesn't remember that p is
     -- the second component of a, so p doesn't get eliminated into idp or ua not during Bool-path-induction
     lem : fst a == Bool → g (f a) == a
     lem idp = Trunc-rec {!!} {!!} p
+-}
